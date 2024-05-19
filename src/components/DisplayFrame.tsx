@@ -19,6 +19,7 @@ const DisplayFrameStyle = styled.div({
     borderRadius: 28,
     width: "100%",
     height: "100%",
+    fontSize: 64,
   },
 });
 

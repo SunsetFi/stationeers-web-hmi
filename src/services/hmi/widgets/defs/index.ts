@@ -1,11 +1,9 @@
-import { StackWidget, StackWidgetDef } from "./Stack";
-import { TextWidget, TextWidgetDef } from "./Text";
-
-export type Widget = StackWidget | TextWidget;
+import { StackWidgetDef } from "./Stack";
+import { TextWidgetDef } from "./Text";
+import { IconWidgetDef } from "./Icon";
 
 export const WidgetDefs = {
   stack: StackWidgetDef,
   text: TextWidgetDef,
+  icon: IconWidgetDef,
 };
-
-export type WidgetType = keyof typeof WidgetDefs;

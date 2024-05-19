@@ -9,6 +9,8 @@ export interface TextWidget extends WidgetBase {
 
 export const TextWidgetDef: WidgetDef<TextWidget> = {
   Component: ({ widget }: { widget: TextWidget }) => (
-    <Typography variant="h2">{widget.text}</Typography>
+    <Typography variant="h2" fontSize="inherit">
+      {widget.text}
+    </Typography>
   ),
 };

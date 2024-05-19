@@ -11,11 +11,35 @@ export class HmiScreenRepository {
         title: "Demo Screen",
         root: {
           type: "stack",
-          direction: "row",
+          direction: "column",
           children: [
             {
-              type: "text",
-              text: "Hello, world!",
+              type: "stack",
+              direction: "row",
+              children: [
+                {
+                  type: "icon",
+                  icon: "Thermostat",
+                },
+                {
+                  type: "text",
+                  text: "78° F",
+                },
+              ],
+            },
+            {
+              type: "stack",
+              direction: "row",
+              children: [
+                {
+                  type: "icon",
+                  icon: "BatteryChargingFull",
+                },
+                {
+                  type: "text",
+                  text: "100%",
+                },
+              ],
             },
           ],
         },
