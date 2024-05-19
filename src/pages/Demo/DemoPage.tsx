@@ -2,46 +2,12 @@ import React from "react";
 import styled from "@emotion/styled";
 import { Box, Typography } from "@mui/material";
 import { Thermostat, WbSunny } from "@mui/icons-material";
-
-const DemoPageStyle = styled.div({
-  boxSizing: "border-box",
-  position: "relative",
-  border: "2px solid white",
-  borderRadius: 28,
-  width: "100%",
-  height: "100%",
-});
+import DisplayFrame from "@/components/DisplayFrame";
 
 const DemoPage = () => {
-  const [x, setX] = React.useState(0);
-  const [y, setY] = React.useState(0);
   return (
-    <Box
-      sx={{
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        padding: 2,
-        position: "relative",
-      }}
-    >
-      <div
-        style={{
-          position: "absolute",
-          left: x - 5,
-          top: y - 5,
-          backgroundColor: "white",
-          borderRadius: 5,
-          width: 10,
-          height: 10,
-        }}
-      />
-      <DemoPageStyle
-        onMouseMove={(e) => {
-          setX(e.clientX);
-          setY(e.clientY);
-        }}
-      >
+    <DisplayFrame>
+      <Box sx={{ position: "relative", width: "100%", height: "100%" }}>
         <Box
           sx={{
             position: "absolute",
@@ -69,8 +35,8 @@ const DemoPage = () => {
         >
           <WbSunny fontSize="inherit" />
         </Box>
-      </DemoPageStyle>
-    </Box>
+      </Box>
+    </DisplayFrame>
   );
 };
 
