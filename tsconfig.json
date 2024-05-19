@@ -1,0 +1,30 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "jsx": "react",
+
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "forceConsistentCasingInFileNames": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    "experimentalDecorators": true,
+
+    "downlevelIteration": true,
+
+    "lib": ["dom", "ESNext"],
+
+    "strict": true,
+
+    "rootDir": "./src",
+    "baseUrl": "./node_modules",
+    "paths": {
+      "@/*": ["../src/*"]
+    },
+
+    "sourceMap": true
+  },
+
+  "include": ["src/**/*"]
+}
