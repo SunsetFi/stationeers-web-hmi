@@ -1,6 +1,11 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import { LineChart, LineSeriesType, markElementClasses } from "@mui/x-charts";
+import {
+  AxisConfig,
+  LineChart,
+  LineSeriesType,
+  markElementClasses,
+} from "@mui/x-charts";
 
 import { useDIDependency } from "@/container";
 
@@ -15,18 +20,22 @@ import { Subscription } from "rxjs";
 export interface LineChartWidget extends WidgetBase {
   type: "line-chart";
   series: LineChartSeries[];
-}
-
-export interface LineChartSeries {
-  title?: string;
-  sourceFormula: string;
   sampleCount?: number;
   sampleRate?: number;
 }
 
+export interface LineChartSeries {
+  title?: string;
+  valueFormula: string;
+  axis?: {
+    min?: number;
+    max?: number;
+  };
+}
+
 export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
   Component: ({ widget }: { widget: LineChartWidget }) => {
-    const { series } = widget;
+    const { series, sampleCount = 60, sampleRate = 1 } = widget;
 
     const [containerRef, setContainerRef] =
       React.useState<HTMLDivElement | null>(null);
@@ -36,39 +45,48 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
       Omit<LineSeriesType, "type">[]
     >([]);
 
+    const yAxes = React.useMemo(() => {
+      return series.map(
+        (s, i) =>
+          ({
+            id: String(i),
+            min: s.axis?.min,
+            max: s.axis?.max,
+          }) satisfies AxisConfig
+      );
+    }, [series]);
+
     const formulaCompiler = useDIDependency(FormulaCompiler);
     React.useEffect(() => {
       const subscriptions: Subscription[] = [];
 
       setMuiSeries(
-        series.map(({ title, sampleCount }) => ({
-          title,
-          data: new Array(sampleCount ?? 100).fill(null),
+        series.map(({ title }, i) => ({
+          label: title,
+          data: new Array(sampleCount).fill(null),
+          yAxisKey: String(i),
         }))
       );
 
       for (let index = 0; index < series.length; index++) {
         const item = series[index];
-        const formula = formulaCompiler.compileFormula(item.sourceFormula);
-        const receiver: { value: number | null } = { value: null };
+        const formula = formulaCompiler.compileFormula(item.valueFormula);
+        let currentValue: number | null = null;
         const subscription = formula.subscribe((value) => {
-          receiver.value = Number(value);
+          currentValue = Number(value);
         });
 
-        const sampler = setInterval(
-          () => {
-            setMuiSeries((prev) => {
-              const copy = [...prev];
-              const prevData = copy[index].data ?? [];
-              copy[index] = {
-                ...copy[index],
-                data: [...prevData.slice(1), receiver.value],
-              };
-              return copy;
-            });
-          },
-          (item.sampleRate ?? 1) * 1000
-        );
+        const sampler = setInterval(() => {
+          setMuiSeries((prev) => {
+            const copy = [...prev];
+            const prevData = copy[index].data ?? [];
+            copy[index] = {
+              ...copy[index],
+              data: [...prevData.slice(1), currentValue],
+            };
+            return copy;
+          });
+        }, sampleRate * 1000);
         subscription.add(() => clearInterval(sampler));
 
         subscriptions.push(subscription);
@@ -81,7 +99,7 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
     return (
       <Box
         ref={setContainerRef}
-        sx={{ width: "100%", height: "100%", flex: "1" }}
+        sx={{ width: "100%", height: "100%", flex: "1", minHeight: 0 }}
       >
         <LineChart
           width={width}
@@ -92,6 +110,16 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
             },
           }}
           series={muiSeries}
+          yAxis={yAxes}
+          rightAxis={yAxes.length > 0 ? "1" : undefined}
+          xAxis={[
+            {
+              tickNumber: 4,
+              data: new Array(sampleCount).fill("").map((_, i) => i + 1),
+              valueFormatter: (value) =>
+                `${sampleRate * (sampleCount - value)}s`,
+            },
+          ]}
         />
       </Box>
     );

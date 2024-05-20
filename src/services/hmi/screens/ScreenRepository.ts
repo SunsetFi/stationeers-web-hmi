@@ -43,30 +43,13 @@ export class HmiScreenRepository {
               type: "line-chart",
               series: [
                 {
-                  sourceFormula: "device('Gas Sensor').logicValues.Temperature",
+                  valueFormula:
+                    "device('Gas Sensor').logicValues.Temperature kelvin to degF",
                   title: "Temperature",
                 },
                 {
-                  sourceFormula: "device('Gas Sensor').logicValues.Pressure",
+                  valueFormula: "device('Gas Sensor').logicValues.Pressure",
                   title: "Pressure",
-                },
-              ],
-            },
-            {
-              type: "text",
-              text: "Sun Tracking",
-            },
-            {
-              type: "stack",
-              direction: "row",
-              children: [
-                {
-                  type: "icon",
-                  icon: "WbSunny",
-                },
-                {
-                  type: "text",
-                  text: '${round(device("Daylight Sensor").logicValues.SolarAngle deg, 1, deg)}°',
                 },
               ],
             },
@@ -84,7 +67,27 @@ export class HmiScreenRepository {
                 },
                 {
                   type: "text",
-                  text: '${device("Area Power Control").logicValues.Charge / device("Area Power Control").logicValues.Maximum * 100}%',
+                  text: "Charge",
+                },
+                {
+                  type: "gauge",
+                  min: 0,
+                  max: 100,
+                  labelFormula:
+                    '${round(device("Area Power Control").logicValues.Charge / device("Area Power Control").logicValues.Maximum * 100, 0)}%',
+                  valueFormula: `device("Area Power Control").logicValues.Charge / device("Area Power Control").logicValues.Maximum * 100`,
+                },
+                {
+                  type: "text",
+                  text: "Usage",
+                },
+                {
+                  type: "gauge",
+                  min: -200,
+                  max: 200,
+                  labelFormula:
+                    '${round(device("Area Power Control").logicValues.PowerActual, 0)} w',
+                  valueFormula: `round(device("Area Power Control").logicValues.PowerActual, 0)`,
                 },
               ],
             },
