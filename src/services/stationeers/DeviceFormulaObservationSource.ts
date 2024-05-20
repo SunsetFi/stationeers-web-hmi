@@ -5,7 +5,6 @@ import {
   map,
   mergeMap,
   shareReplay,
-  tap,
   of as observableOf,
 } from "rxjs";
 
@@ -30,13 +29,12 @@ export class DeviceFormulaObservationSource
     this._devicesByName = this._devicesSource.devices$.pipe(
       map((devices) =>
         devices.map((device) =>
-          device.name$.pipe(map((name) => [name, device]))
+          device.displayName$.pipe(map((name) => [name, device]))
         )
       ),
       observeAll(),
       map((entries) => Object.fromEntries(entries)),
-      shareReplay(1),
-      tap((devices) => console.log("Devices by name updated", devices))
+      shareReplay(1)
     );
   }
 
@@ -45,11 +43,8 @@ export class DeviceFormulaObservationSource
 
   resolve(args: Observable<any>[]): Observable<any> {
     const [deviceId] = args;
-    console.log("Resolving observable device call");
-    deviceId.subscribe((value) => console.log("Device ID is", value));
     return combineLatest([deviceId, this._devicesByName]).pipe(
       map(([deviceId, devices]) => {
-        console.log("Fetching observable device with id", deviceId);
         if (
           typeof deviceId === "number" ||
           (typeof deviceId === "string" && numerics.test(deviceId))
@@ -66,8 +61,7 @@ export class DeviceFormulaObservationSource
         return devices[deviceId] ?? null;
       }),
       // FIXME: We should do deep observations, but this works for now.
-      mergeMap((device) => (device ? device.data$ : observableOf(null))),
-      tap((value) => console.log("Resolved device with id to ", value))
+      mergeMap((device) => (device ? device.data$ : observableOf(null)))
     );
   }
 }

@@ -14,6 +14,10 @@ export class HmiScreenRepository {
           direction: "column",
           children: [
             {
+              type: "text",
+              text: "Atmosphere",
+            },
+            {
               type: "stack",
               direction: "row",
               children: [
@@ -23,9 +27,39 @@ export class HmiScreenRepository {
                 },
                 {
                   type: "text",
-                  text: '${device("StructureGasSensor").logicValues.Temperature kelvin to degF}° F',
+                  text: '${round(device("Gas Sensor").logicValues.Temperature kelvin to degF, 1, degF)}° F',
+                },
+                {
+                  type: "icon",
+                  icon: "Compress",
+                },
+                {
+                  type: "text",
+                  text: '${round(device("Gas Sensor").logicValues.Pressure KPa, 2, KPa)} kPa',
                 },
               ],
+            },
+            {
+              type: "text",
+              text: "Sun Tracking",
+            },
+            {
+              type: "stack",
+              direction: "row",
+              children: [
+                {
+                  type: "icon",
+                  icon: "WbSunny",
+                },
+                {
+                  type: "text",
+                  text: '${round(device("Daylight Sensor").logicValues.SolarAngle deg, 1, deg)}°',
+                },
+              ],
+            },
+            {
+              type: "text",
+              text: "Power",
             },
             {
               type: "stack",
@@ -37,7 +71,7 @@ export class HmiScreenRepository {
                 },
                 {
                   type: "text",
-                  text: '${device("StructureAreaPowerControlReversed").logicValues.Charge / device("StructureAreaPowerControlReversed").logicValues.Maximum * 100}%',
+                  text: '${device("Area Power Control").logicValues.Charge / device("Area Power Control").logicValues.Maximum * 100}%',
                 },
               ],
             },

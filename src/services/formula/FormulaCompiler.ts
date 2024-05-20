@@ -33,6 +33,9 @@ export class FormulaCompiler {
     this._math = math.create(math.all);
     this._limitedParse = this._math.parse;
 
+    this._math.createUnit("KPa", "1000 Pa");
+    this._math.createUnit("MPa", "1000000 Pa");
+
     this._math.import(
       {
         import: function () {
@@ -100,7 +103,18 @@ export class FormulaCompiler {
     return this._compileParsedFormula(parsed).pipe(
       map((value) => {
         if (math.isUnit(value)) {
-          return value.toNumber().toString();
+          // Even with rounding to fixed decimal places, jank still happens
+          // Limit the precision to trim out the jank
+
+          // Get the raw number
+          const raw = value.toNumber();
+
+          // Get the number with the decimals trimmed out
+          const truncated = Number(raw.toFixed(6));
+
+          // Return the string value
+          // We do not return the string of toFixed as we dont want the zero decimals to show.
+          return truncated.toString();
         }
         return value.toString();
       })

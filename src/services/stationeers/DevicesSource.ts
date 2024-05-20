@@ -6,7 +6,6 @@ import {
   distinctUntilChanged,
   map,
   shareReplay,
-  tap,
 } from "rxjs";
 
 import { difference, isEqual, sortBy } from "lodash";
@@ -39,8 +38,7 @@ export class DevicesSource implements Initializable {
 
   private readonly _devices$ = this._devicesSubject$.pipe(
     distinctUntilShallowArrayChanged(),
-    shareReplay(1),
-    tap((devices) => console.log("Devices updated", devices))
+    shareReplay(1)
   );
   get devices$(): Observable<readonly DeviceModel[]> {
     return this._devices$;
@@ -94,25 +92,21 @@ export class DeviceModel {
     return this._data.value.referenceId;
   }
 
-  get name(): string {
-    if (this._data.value.customName === "") {
-      return this._data.value.prefabName;
-    }
-
-    return this._data.value.customName;
+  get displayName(): string {
+    return this._data.value.displayName;
   }
 
-  private _name$: Observable<string> | null = null;
-  get name$(): Observable<string> {
-    if (!this._name$) {
-      this._name$ = this._data.pipe(
-        map(() => this.name),
+  private _displayName$: Observable<string> | null = null;
+  get displayName$(): Observable<string> {
+    if (!this._displayName$) {
+      this._displayName$ = this._data.pipe(
+        map(() => this.displayName),
         distinctUntilChanged(),
         shareReplay(1)
       );
     }
 
-    return this._name$;
+    return this._displayName$;
   }
 
   get logicValues(): LogicValues {
