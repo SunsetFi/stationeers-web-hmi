@@ -23,7 +23,7 @@ export class HmiScreenRepository {
                 },
                 {
                   type: "text",
-                  text: "78° F",
+                  text: '${device("StructureGasSensor").logicValues.Temperature kelvin to degF}° F',
                 },
               ],
             },
@@ -37,7 +37,7 @@ export class HmiScreenRepository {
                 },
                 {
                   type: "text",
-                  text: "100%",
+                  text: '${device("StructureAreaPowerControlReversed").logicValues.Charge / device("StructureAreaPowerControlReversed").logicValues.Maximum * 100}%',
                 },
               ],
             },
