@@ -98,7 +98,12 @@ export class FormulaCompiler {
     const parsed = this._limitedParse(expression);
 
     return this._compileParsedFormula(parsed).pipe(
-      map((value) => value.toString())
+      map((value) => {
+        if (math.isUnit(value)) {
+          return value.toNumber().toString();
+        }
+        return value.toString();
+      })
     );
   }
 
@@ -136,13 +141,11 @@ export class FormulaCompiler {
 
     return combineLatest(observationMappings).pipe(
       map((results) => {
-        console.log("Got observations for", parsed.toString());
         const scope: Record<string, any> = {
           ...results,
         };
 
         const result = compiled.evaluate(scope);
-        console.log("result is", result);
         return result;
       })
     );
