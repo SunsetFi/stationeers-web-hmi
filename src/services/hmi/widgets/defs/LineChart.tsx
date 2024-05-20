@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
-import { LineChart, LineSeriesType } from "@mui/x-charts";
+import { LineChart, LineSeriesType, markElementClasses } from "@mui/x-charts";
 
 import { useDIDependency } from "@/container";
 
@@ -83,7 +83,16 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
         ref={setContainerRef}
         sx={{ width: "100%", height: "100%", flex: "1" }}
       >
-        <LineChart width={width} height={height} series={muiSeries} />
+        <LineChart
+          width={width}
+          height={height}
+          sx={{
+            [`.${markElementClasses.root}`]: {
+              display: "none",
+            },
+          }}
+          series={muiSeries}
+        />
       </Box>
     );
   },
