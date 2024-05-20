@@ -18,15 +18,17 @@ const WidgetRenderer: React.FC<WidgetRendererProps> = ({ widget, sx }) => {
 
   const props: ComponentPropsOf<typeof Component> = { widget: widget as any };
 
-  return (
-    <Box sx={sx}>
-      {/*
-      Need to mask the type here as typescript cannot reconcile the multiple options
-      of Component widget with the multiple options of props.widget
-      */}
-      <Component {...(props as any)} />
-    </Box>
-  );
+  return <Component {...(props as any)} />;
+
+  // return (
+  //   <Box sx={sx}>
+  //     {/*
+  //     Need to mask the type here as typescript cannot reconcile the multiple options
+  //     of Component widget with the multiple options of props.widget
+  //     */}
+  //     <Component {...(props as any)} />
+  //   </Box>
+  // );
 };
 
 export default WidgetRenderer;

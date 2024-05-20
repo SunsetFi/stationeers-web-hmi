@@ -40,6 +40,19 @@ export class HmiScreenRepository {
               ],
             },
             {
+              type: "line-chart",
+              series: [
+                {
+                  sourceFormula: "device('Gas Sensor').logicValues.Temperature",
+                  title: "Temperature",
+                },
+                {
+                  sourceFormula: "device('Gas Sensor').logicValues.Pressure",
+                  title: "Pressure",
+                },
+              ],
+            },
+            {
               type: "text",
               text: "Sun Tracking",
             },

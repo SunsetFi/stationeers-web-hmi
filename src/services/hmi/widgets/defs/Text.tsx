@@ -1,9 +1,13 @@
 import React from "react";
 import { Typography } from "@mui/material";
-import { WidgetBase, WidgetDef } from "./types";
-import { useObservation } from "@/hooks/use-observation";
+
 import { useDIDependency } from "@/container";
+
+import { useObservation } from "@/hooks/use-observation";
+
 import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
+
+import { WidgetBase, WidgetDef } from "./types";
 
 export interface TextWidget extends WidgetBase {
   type: "text";
