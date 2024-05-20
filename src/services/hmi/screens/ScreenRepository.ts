@@ -83,8 +83,8 @@ export class HmiScreenRepository {
                 },
                 {
                   type: "gauge",
-                  min: -200,
-                  max: 200,
+                  min: 0,
+                  max: 5000,
                   labelFormula:
                     '${round(device("Area Power Control").logicValues.PowerActual, 0)} w',
                   valueFormula: `round(device("Area Power Control").logicValues.PowerActual, 0)`,
