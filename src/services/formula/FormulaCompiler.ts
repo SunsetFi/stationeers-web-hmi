@@ -60,11 +60,16 @@ export class FormulaCompiler {
       { override: true }
     );
 
+    // This is an egregious abuse of a template parser that is supposed to only be
+    // targeting variable names with piped functions, angular style.
+    // However, we can force it into something usable for us by messing with its regex settings,
+    // and skip having to write the matching and dealing with nesting and escapes ourselves.
     this._templateParser = parseStringTemplateGenerator({
       // The idea of pipes is neat, but we use complex expressions and may want the
       // logical or (||) operator.
       PIPE_START: NegativeRegex,
       PIPE_PARAMETER_START: NegativeRegex,
+      // We absolutely need quotes to be passed as-is for string values in the equations, like function arguments.
       QUOTED_STRING: NegativeRegex,
     });
   }
@@ -77,10 +82,7 @@ export class FormulaCompiler {
     );
 
     if (formulaObservations.length === 0) {
-      return new Observable((subscriber) => {
-        subscriber.next(parsed.literals.join(""));
-        subscriber.complete();
-      });
+      return observableOf(parsed.literals.join(""));
     }
 
     return combineLatest(formulaObservations).pipe(
@@ -103,19 +105,25 @@ export class FormulaCompiler {
     return this._compileParsedFormula(parsed).pipe(
       map((value) => {
         if (math.isUnit(value)) {
-          // Even with rounding to fixed decimal places, jank still happens
+          // Even when using the round function in equations, rounding jank still happens
           // Limit the precision to trim out the jank
 
           // Get the raw number
           const raw = value.toNumber();
 
           // Get the number with the decimals trimmed out
+          // 6 is chosen more or less arbitrarily here.  I don't think we will be called on to display a value
+          // with more than this many digits.
+          // For completeness, maybe we can do something interesting with computing and limiting the significant figure count.
+          // Note that .toFixed will add padding zeros after the decimal to match the 6 places.
+          // We dont want to show that, so its back into a number it goes.
           const truncated = Number(raw.toFixed(6));
 
           // Return the string value
-          // We do not return the string of toFixed as we dont want the zero decimals to show.
           return truncated.toString();
         }
+
+        // If its not a unit, just return the string form regardless of what it is.
         return value.toString();
       })
     );

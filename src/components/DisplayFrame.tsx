@@ -24,27 +24,38 @@ const DisplayFrameStyle = styled.div({
 });
 
 const DisplayFrame: React.FC<DisplayFrameProps> = ({ children }) => {
-  const [x, setX] = React.useState(0);
-  const [y, setY] = React.useState(0);
+  const [x, setX] = React.useState(Number.NaN);
+  const [y, setY] = React.useState(Number.NaN);
+
+  const onMouseMove = React.useCallback((event: React.MouseEvent) => {
+    setX(event.clientX);
+    setY(event.clientY);
+  }, []);
+
+  const onMouseOut = React.useCallback(() => {
+    setX(Number.NaN);
+    setY(Number.NaN);
+  }, []);
+
   return (
     <DisplayFrameStyle>
-      <div
-        style={{
-          position: "absolute",
-          left: x - 5,
-          top: y - 5,
-          backgroundColor: "white",
-          borderRadius: 5,
-          width: 10,
-          height: 10,
-        }}
-      />
+      {!Number.isNaN(x) && !Number.isNaN(y) && (
+        <div
+          style={{
+            position: "absolute",
+            left: x - 5,
+            top: y - 5,
+            backgroundColor: "white",
+            borderRadius: 5,
+            width: 10,
+            height: 10,
+          }}
+        />
+      )}
       <div
         className="display-frame-content"
-        onMouseMove={(e) => {
-          setX(e.clientX);
-          setY(e.clientY);
-        }}
+        onMouseOut={onMouseOut}
+        onMouseMove={onMouseMove}
       >
         {children}
       </div>

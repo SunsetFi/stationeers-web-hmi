@@ -16,6 +16,6 @@ export const IconWidgetDef: WidgetDef<IconWidget> = {
       return null;
     }
 
-    return <Icon fontSize="inherit" />;
+    return <Icon sx={{ alignSelf: "center" }} fontSize="inherit" />;
   },
 };

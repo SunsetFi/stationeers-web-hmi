@@ -56,10 +56,11 @@ export const GaugeWidgetDef: WidgetDef<GaugeWidget> = {
     return (
       <Gauge
         sx={{
-          width: "75px",
-          height: "75px",
+          width: "100px",
+          height: "100px",
           flexGrow: 0,
           fontSize: "initial",
+          alignSelf: "center",
         }}
         valueMin={minValue}
         valueMax={maxValue}

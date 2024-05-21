@@ -24,7 +24,7 @@ export const StackWidgetDef: WidgetDef<StackWidget> = {
         break;
     }
     return (
-      <Stack direction={widget.direction} gap={2} alignItems="stretch" sx={sx}>
+      <Stack direction={widget.direction} alignItems="stretch" sx={sx}>
         {widget.children.map((child, index) => (
           <WidgetRenderer key={index} widget={child} />
         ))}
