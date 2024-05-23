@@ -21,6 +21,10 @@ export const TextWidgetDef: WidgetDef<TextWidget> = {
       () => formulaCompiler.compileTemplateString(widget.text),
       [widget.text]
     );
-    return <Typography fontSize="inherit">{value}</Typography>;
+    return (
+      <Typography sx={{ alignSelf: "center" }} variant="h4">
+        {value}
+      </Typography>
+    );
   },
 };

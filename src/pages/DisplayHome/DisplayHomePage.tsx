@@ -12,6 +12,7 @@ import { usePromise } from "@/hooks/use-promise";
 
 import DisplayFrame from "@/components/DisplayFrame";
 import ButtonLink from "@/components/ButtonLink";
+import Center from "@/components/Center";
 
 const DisplayHomePage: React.FC = () => {
   const display = useHmiDisplay();
@@ -19,19 +20,19 @@ const DisplayHomePage: React.FC = () => {
   let content: React.ReactNode;
   if (display === undefined) {
     content = (
-      <Stack alignItems="center" justifyContent="center">
+      <Center>
         <CircularProgress size="large" />
-      </Stack>
+      </Center>
     );
   } else if (display === null) {
     content = (
-      <Stack alignItems="center" justifyContent="center">
+      <Center>
         <Typography variant="h2">Display not found</Typography>
-      </Stack>
+      </Center>
     );
   } else {
     content = (
-      <Stack alignItems="center" justifyContent="center">
+      <Stack alignItems="center">
         <Typography variant="h2">{display.displayName}</Typography>
         <DisplayLoadedContent display={display} />
       </Stack>

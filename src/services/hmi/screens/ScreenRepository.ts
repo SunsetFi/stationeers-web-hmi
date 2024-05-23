@@ -87,6 +87,24 @@ const testScreens: HmiScreen[] = [
             },
           ],
         },
+        {
+          type: "line-chart",
+          series: [
+            {
+              valueFormula:
+                'round(device("Area Power Control").logicValues.Charge w, 0, w) to kw',
+              title: "Stored Power (kw)",
+            },
+            {
+              valueFormula: `round(device("Area Power Control").logicValues.PowerActual, 0)`,
+              title: "Usage (w)",
+              axis: {
+                min: 0,
+                max: 5000,
+              },
+            },
+          ],
+        },
       ],
     },
   },

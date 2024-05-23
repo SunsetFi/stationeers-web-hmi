@@ -1,6 +1,6 @@
 import React from "react";
 import { useParams } from "react-router";
-import { CircularProgress, Stack, Typography } from "@mui/material";
+import { CircularProgress, Typography } from "@mui/material";
 
 import { useDIDependency } from "@/container";
 
@@ -10,6 +10,7 @@ import { WidgetRenderer } from "@/services/hmi/widgets";
 import { usePromise } from "@/hooks/use-promise";
 
 import DisplayFrame from "@/components/DisplayFrame";
+import Center from "@/components/Center";
 
 const HmiScreenPage = () => {
   const screenRepository = useDIDependency(HmiScreenRepository);
@@ -24,15 +25,15 @@ const HmiScreenPage = () => {
 
   if (screen === undefined) {
     content = (
-      <Stack alignItems="center" justifyContent="center">
+      <Center>
         <CircularProgress size="large" />
-      </Stack>
+      </Center>
     );
   } else if (screen === null) {
     content = (
-      <Stack alignItems="center" justifyContent="center">
+      <Center>
         <Typography variant="h2">Screen not found</Typography>
-      </Stack>
+      </Center>
     );
   } else {
     content = (

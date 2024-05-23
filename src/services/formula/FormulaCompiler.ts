@@ -35,6 +35,10 @@ export class FormulaCompiler {
 
     this._math.createUnit("KPa", "1000 Pa");
     this._math.createUnit("MPa", "1000000 Pa");
+    this._math.createUnit("GPa", "1000000000 Pa");
+
+    this._math.createUnit("w", "1 W");
+    this._math.createUnit("kw", "1000 W");
 
     this._math.import(
       {
