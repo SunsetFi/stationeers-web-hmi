@@ -52,14 +52,6 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
 
       const yAxes: AxisConfig[] = [];
 
-      setMuiSeries(
-        series.map(({ title }, i) => ({
-          label: title,
-          data: new Array(sampleCount).fill(null),
-          yAxisKey: String(i),
-        }))
-      );
-
       for (let index = 0; index < series.length; index++) {
         const item = series[index];
 
@@ -119,6 +111,14 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
 
       setYAxes(yAxes);
 
+      setMuiSeries(
+        series.map(({ title }, i) => ({
+          label: title,
+          data: new Array(sampleCount).fill(null),
+          yAxisKey: String(i),
+        }))
+      );
+
       return () => {
         subscriptions.forEach((s) => s.unsubscribe());
       };
@@ -143,7 +143,7 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
           xAxis={[
             {
               tickNumber: 4,
-              data: new Array(sampleCount).fill("").map((_, i) => i + 1),
+              data: new Array(sampleCount).fill(null).map((_, i) => i + 1),
               valueFormatter: (value) =>
                 `${sampleRate * (sampleCount - value)}s`,
             },
