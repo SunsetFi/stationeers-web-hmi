@@ -24,7 +24,6 @@ const DisplayFrameStyle = styled.div({
     borderRadius: 28,
     width: "100%",
     height: "100%",
-    fontSize: 64,
     overflow: "hidden",
   },
 });
@@ -68,6 +67,8 @@ const DisplayFrame: React.FC<DisplayFrameProps> = ({ children }) => {
             borderRadius: 5,
             width: 10,
             height: 10,
+            zIndex: 1000,
+            pointerEvents: "none",
           }}
         />
       )}

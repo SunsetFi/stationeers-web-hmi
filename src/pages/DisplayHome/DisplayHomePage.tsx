@@ -1,10 +1,17 @@
 import React from "react";
 
-import { Stack, CircularProgress, Typography } from "@mui/material";
+import { Stack, CircularProgress, Typography, Paper } from "@mui/material";
+
+import { useDIDependency } from "@/container";
 
 import { useHmiDisplay } from "@/services/hmi/HmiContext";
+import { HmiScreenRepository } from "@/services/hmi/screens/ScreenRepository";
+import { DeviceApiObject } from "@/services/stationeers/api-types";
+
+import { usePromise } from "@/hooks/use-promise";
 
 import DisplayFrame from "@/components/DisplayFrame";
+import ButtonLink from "@/components/ButtonLink";
 
 const DisplayHomePage: React.FC = () => {
   const display = useHmiDisplay();
@@ -25,10 +32,8 @@ const DisplayHomePage: React.FC = () => {
   } else {
     content = (
       <Stack alignItems="center" justifyContent="center">
-        <Typography variant="h2">Hello from {display.referenceId}</Typography>
-        <code>
-          <pre>{JSON.stringify(display, null, 2)}</pre>
-        </code>
+        <Typography variant="h2">{display.displayName}</Typography>
+        <DisplayLoadedContent display={display} />
       </Stack>
     );
   }
@@ -37,3 +42,33 @@ const DisplayHomePage: React.FC = () => {
 };
 
 export default DisplayHomePage;
+
+const DisplayLoadedContent: React.FC<{ display: DeviceApiObject }> = ({
+  display,
+}) => {
+  const screenRepo = useDIDependency(HmiScreenRepository);
+  const screens = usePromise(
+    () => screenRepo.getScreensForDisplay(display.referenceId),
+    [display.referenceId]
+  );
+
+  if (!screens) {
+    return (
+      <Stack alignItems="center" justifyContent="center">
+        <CircularProgress />
+      </Stack>
+    );
+  }
+
+  return (
+    <Paper>
+      <Stack direction="column" spacing={2}>
+        {screens.map(({ title, id }) => (
+          <ButtonLink key={id} to={`hmi-screens/${id}`}>
+            {title}
+          </ButtonLink>
+        ))}
+      </Stack>
+    </Paper>
+  );
+};
