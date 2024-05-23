@@ -1,21 +1,20 @@
 import React from "react";
-import { Box, Typography } from "@mui/material";
 import {
   AxisConfig,
   LineChart,
   LineSeriesType,
   markElementClasses,
 } from "@mui/x-charts";
+import { Subscription, combineLatest, of as observableOf } from "rxjs";
+import { Box } from "@mui/material";
 
 import { useDIDependency } from "@/container";
 
-import { useObservation } from "@/hooks/use-observation";
-
 import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
 
-import { WidgetBase, WidgetDef } from "./types";
 import { useComponentBounds } from "@/hooks/use-component-bounds";
-import { Subscription } from "rxjs";
+
+import { WidgetBase, WidgetDef } from "./types";
 
 export interface LineChartWidget extends WidgetBase {
   type: "line-chart";
@@ -28,8 +27,8 @@ export interface LineChartSeries {
   title?: string;
   valueFormula: string;
   axis?: {
-    min?: number;
-    max?: number;
+    min?: number | string;
+    max?: number | string;
   };
 }
 
@@ -45,20 +44,13 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
       Omit<LineSeriesType, "type">[]
     >([]);
 
-    const yAxes = React.useMemo(() => {
-      return series.map(
-        (s, i) =>
-          ({
-            id: String(i),
-            min: s.axis?.min,
-            max: s.axis?.max,
-          }) satisfies AxisConfig
-      );
-    }, [series]);
+    const [yAxes, setYAxes] = React.useState<AxisConfig[]>([]);
 
     const formulaCompiler = useDIDependency(FormulaCompiler);
     React.useEffect(() => {
       const subscriptions: Subscription[] = [];
+
+      const yAxes: AxisConfig[] = [];
 
       setMuiSeries(
         series.map(({ title }, i) => ({
@@ -70,9 +62,42 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
 
       for (let index = 0; index < series.length; index++) {
         const item = series[index];
-        const formula = formulaCompiler.compileFormula(item.valueFormula);
+
+        // axis
+        const { min, max } = item.axis ?? {};
+
+        const min$ =
+          typeof min === "string"
+            ? formulaCompiler.compileFormula(min)
+            : observableOf(min);
+        const max$ =
+          typeof max === "string"
+            ? formulaCompiler.compileFormula(max)
+            : observableOf(max);
+
+        subscriptions.push(
+          combineLatest([min$, max$]).subscribe(([min, max]) => {
+            setYAxes((prev) => {
+              const copy = [...prev];
+              copy[index] = {
+                ...copy[index],
+                min: Number(min),
+                max: Number(max),
+              };
+              return copy;
+            });
+          })
+        );
+
+        const axis: AxisConfig = {
+          id: String(index),
+        };
+        yAxes.push(axis);
+
+        // value
+        const valueFormula = formulaCompiler.compileFormula(item.valueFormula);
         let currentValue: number | null = null;
-        const subscription = formula.subscribe((value) => {
+        const valueSubscription = valueFormula.subscribe((value) => {
           currentValue = Number(value);
         });
 
@@ -87,10 +112,12 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
             return copy;
           });
         }, sampleRate * 1000);
-        subscription.add(() => clearInterval(sampler));
+        valueSubscription.add(() => clearInterval(sampler));
 
-        subscriptions.push(subscription);
+        subscriptions.push(valueSubscription);
       }
+
+      setYAxes(yAxes);
 
       return () => {
         subscriptions.forEach((s) => s.unsubscribe());

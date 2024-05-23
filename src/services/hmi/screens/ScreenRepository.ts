@@ -94,6 +94,10 @@ const testScreens: HmiScreen[] = [
               valueFormula:
                 'round(device("Area Power Control").logicValues.Charge w, 0, w) to kw',
               title: "Stored Power (kw)",
+              axis: {
+                min: 0,
+                max: 'device("Area Power Control").logicValues.Maximum w to kw',
+              },
             },
             {
               valueFormula: `round(device("Area Power Control").logicValues.PowerActual, 0)`,
