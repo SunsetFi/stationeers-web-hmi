@@ -136,6 +136,7 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
               display: "none",
             },
           }}
+          skipAnimation
           series={muiSeries}
           yAxis={yAxes}
           rightAxis={yAxes.length > 0 ? "1" : undefined}
