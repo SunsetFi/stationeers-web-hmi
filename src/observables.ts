@@ -1,4 +1,9 @@
-import { Observable, Subscription, distinctUntilChanged } from "rxjs";
+import {
+  BehaviorSubject,
+  Observable,
+  Subscription,
+  distinctUntilChanged,
+} from "rxjs";
 
 import { arrayShallowEquals } from "./utils";
 
@@ -115,4 +120,25 @@ export function observeAll() {
       };
     });
   };
+}
+
+/**
+ * Returns a behavior subject observable that emits undefined until its promise resolves.
+ * @param promise
+ * @returns
+ */
+export function promiseToLoadingBehaviorObservable<T>(
+  promise: Promise<T>
+): Observable<T | undefined> {
+  const observable = new BehaviorSubject<T | undefined>(undefined);
+  promise.then(
+    (value) => {
+      observable.next(value);
+      observable.complete();
+    },
+    (err) => {
+      observable.error(err);
+    }
+  );
+  return observable;
 }

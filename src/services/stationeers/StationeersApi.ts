@@ -1,5 +1,4 @@
 import { injectable, singleton } from "microinject";
-import { DeviceModel } from "./DevicesSource";
 import { DeviceApiObject } from "./api-types";
 
 @injectable()
@@ -7,12 +6,24 @@ import { DeviceApiObject } from "./api-types";
 export class StationeersApi {
   private readonly _url = "http://localhost:8081/api";
 
-  async getDevices(): Promise<DeviceApiObject[]> {
-    return this._get("devices");
+  async getDevice(id: string): Promise<DeviceApiObject | null> {
+    console.log("Getting device", id);
+    const req = await fetch(`${this._url}/devices/${id}`);
+
+    if (req.status === 404) {
+      return null;
+    }
+
+    if (req.status !== 200) {
+      throw new ApiError(req.status, req.statusText);
+    }
+
+    const body = await req.json();
+    return body;
   }
 
-  private async _get(path: string) {
-    const req = await fetch(`${this._url}/${path}`);
+  async getDevices(): Promise<DeviceApiObject[]> {
+    const req = await fetch(`${this._url}/devices`);
     if (req.status !== 200) {
       throw new ApiError(req.status, req.statusText);
     }

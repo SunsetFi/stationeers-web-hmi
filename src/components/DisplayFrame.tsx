@@ -1,5 +1,10 @@
 import React from "react";
 import styled from "@emotion/styled";
+import { Navigate, useParams } from "react-router";
+
+import { useDIDependency } from "@/container";
+
+import { HmiContext } from "@/services/hmi/HmiContext";
 
 export interface DisplayFrameProps {
   children: React.ReactNode;
@@ -20,12 +25,25 @@ const DisplayFrameStyle = styled.div({
     width: "100%",
     height: "100%",
     fontSize: 64,
+    overflow: "hidden",
   },
 });
 
 const DisplayFrame: React.FC<DisplayFrameProps> = ({ children }) => {
+  const { displayReferenceId } = useParams();
+
+  const hmiContext = useDIDependency(HmiContext);
+
   const [x, setX] = React.useState(Number.NaN);
   const [y, setY] = React.useState(Number.NaN);
+
+  React.useEffect(() => {
+    console.log("Frame capturing", displayReferenceId ?? null);
+    hmiContext.setDisplayReferenceId(displayReferenceId ?? null);
+    return () => {
+      hmiContext.setDisplayReferenceId(null);
+    };
+  }, []);
 
   const onMouseMove = React.useCallback((event: React.MouseEvent) => {
     setX(event.clientX);
@@ -39,6 +57,7 @@ const DisplayFrame: React.FC<DisplayFrameProps> = ({ children }) => {
 
   return (
     <DisplayFrameStyle>
+      {!displayReferenceId && <Navigate to="/" />}
       {!Number.isNaN(x) && !Number.isNaN(y) && (
         <div
           style={{
