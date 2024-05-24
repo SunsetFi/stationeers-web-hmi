@@ -1,0 +1,9 @@
+D:\dev\stationeers\stationeers-web-hmi\mod\bin\Debug\net472\StationeersWebHmi.dll
+D:\dev\stationeers\stationeers-web-hmi\mod\bin\Debug\net472\StationeersWebHmi.pdb
+D:\dev\stationeers\stationeers-web-hmi\mod\bin\Debug\net472\Newtonsoft.Json.dll
+D:\dev\stationeers\stationeers-web-hmi\mod\obj\Debug\net472\stationeers-web-hmi.csproj.AssemblyReference.cache
+D:\dev\stationeers\stationeers-web-hmi\mod\obj\Debug\net472\stationeers-web-hmi.GeneratedMSBuildEditorConfig.editorconfig
+D:\dev\stationeers\stationeers-web-hmi\mod\obj\Debug\net472\stationeers-web-hmi.csproj.CoreCompileInputs.cache
+D:\dev\stationeers\stationeers-web-hmi\mod\obj\Debug\net472\statione.9FE7177F.Up2Date
+D:\dev\stationeers\stationeers-web-hmi\mod\obj\Debug\net472\StationeersWebHmi.dll
+D:\dev\stationeers\stationeers-web-hmi\mod\obj\Debug\net472\StationeersWebHmi.pdb
