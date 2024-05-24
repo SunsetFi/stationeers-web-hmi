@@ -1,13 +1,12 @@
 
 using System.IO;
 using BepInEx;
-using HarmonyLib;
 using StationeersWebApi;
 
 namespace StationeersWebDisplay
 {
-    [BepInPlugin("dev.sunsetfi.stationeers.webhmi", "HMI Screens for Stationeers", "1.0.0.0")]
-    [BepInDependency("net.sunsetfidev.stationeers.StationeersWebApi")]
+    [BepInPlugin("dev.sunsetfi.stationeers.hmi", "HMI Screens for Stationeers", "1.0.0.0")]
+    [BepInDependency("dev.sunsetfi.stationeers.webapi")]
     public class StationeersWebHmiPlugin : BaseUnityPlugin
     {
         public static StationeersWebHmiPlugin Instance;
