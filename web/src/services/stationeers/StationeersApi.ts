@@ -1,14 +1,17 @@
-import { injectable, singleton } from "microinject";
+import { inject, injectable, singleton } from "microinject";
+
+import { ApiError } from "@/ApiError";
+
 import { DeviceApiObject } from "./api-types";
 
 @injectable()
 @singleton()
 export class StationeersApi {
-  private readonly _url = "http://localhost:8081/api";
+  constructor(@inject("StationeersApiUrl") private _url: string) {}
 
   async getDevice(id: string): Promise<DeviceApiObject | null> {
     console.log("Getting device", id);
-    const req = await fetch(`${this._url}/devices/${id}`);
+    const req = await fetch(`${this._url}/api/devices/${id}`);
 
     if (req.status === 404) {
       return null;
@@ -23,25 +26,12 @@ export class StationeersApi {
   }
 
   async getDevices(): Promise<DeviceApiObject[]> {
-    const req = await fetch(`${this._url}/devices`);
+    const req = await fetch(`${this._url}/api/devices`);
     if (req.status !== 200) {
       throw new ApiError(req.status, req.statusText);
     }
 
     const body = await req.json();
     return body;
-  }
-}
-
-export class ApiError extends Error {
-  statusCode: number;
-  statusMessage: string;
-
-  constructor(statusCode: number, statusMessage: string) {
-    super(`${statusCode}: ${statusMessage}`);
-    this.message = `${statusCode}: ${statusMessage}`;
-    this.statusCode = statusCode;
-    this.statusMessage = statusMessage;
-    Object.setPrototypeOf(this, ApiError.prototype);
   }
 }

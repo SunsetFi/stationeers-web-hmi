@@ -1,5 +1,4 @@
 
-using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -42,11 +41,15 @@ public class HmiController
     public Task GetConfigs(IHttpContext context)
     {
         var path = Path.Combine(StationeersWebHmiPlugin.AssemblyDirectory, HmiConfigurationFolder);
+
         var configs = new JArray();
         foreach (var file in Directory.GetFiles(path))
         {
-            configs.Add(JObject.Parse(File.ReadAllText(file)));
+            var config = JObject.Parse(File.ReadAllText(file));
+            config["id"] = Path.GetFileNameWithoutExtension(file);
+            configs.Add(config);
         }
+
         return context.SendResponse(HttpStatusCode.OK, "application/json", configs.ToString());
     }
 

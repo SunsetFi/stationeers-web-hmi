@@ -2,10 +2,12 @@
 using System.IO;
 using BepInEx;
 using HarmonyLib;
+using StationeersWebApi;
 
 namespace StationeersWebDisplay
 {
     [BepInPlugin("dev.sunsetfi.stationeers.webhmi", "HMI Screens for Stationeers", "1.0.0.0")]
+    [BepInDependency("net.sunsetfidev.stationeers.StationeersWebApi")]
     public class StationeersWebHmiPlugin : BaseUnityPlugin
     {
         public static StationeersWebHmiPlugin Instance;
@@ -30,6 +32,7 @@ namespace StationeersWebDisplay
             // };
 
             StationeersWebHmiPlugin.Instance = this;
+            StationeersWebApiPlugin.Instance.RegisterControllers(typeof(StationeersWebHmiPlugin).Assembly);
         }
     }
 }

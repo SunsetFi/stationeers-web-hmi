@@ -1,127 +1,30 @@
-import { injectable, singleton } from "microinject";
-import { HmiScreen, HmiScreenId } from "./types";
+import { inject, injectable, singleton } from "microinject";
 
-const testScreens: HmiScreen[] = [
-  {
-    id: "demo" as HmiScreenId,
-    title: "Demo Screen",
-    root: {
-      type: "stack",
-      direction: "column",
-      children: [
-        {
-          type: "text",
-          text: "Atmosphere",
-        },
-        {
-          type: "stack",
-          direction: "row",
-          children: [
-            {
-              type: "icon",
-              icon: "Thermostat",
-            },
-            {
-              type: "text",
-              text: '${round(device("Gas Sensor").logicValues.Temperature kelvin to degF, 1, degF)}° F',
-            },
-            {
-              type: "icon",
-              icon: "Compress",
-            },
-            {
-              type: "text",
-              text: '${round(device("Gas Sensor").logicValues.Pressure KPa, 2, KPa)} kPa',
-            },
-          ],
-        },
-        {
-          type: "line-chart",
-          series: [
-            {
-              valueFormula:
-                "device('Gas Sensor').logicValues.Temperature kelvin to degF",
-              title: "Temperature",
-            },
-            {
-              valueFormula: "device('Gas Sensor').logicValues.Pressure",
-              title: "Pressure",
-            },
-          ],
-        },
-        {
-          type: "text",
-          text: "Power",
-        },
-        {
-          type: "stack",
-          direction: "row",
-          children: [
-            {
-              type: "icon",
-              icon: "BatteryChargingFull",
-            },
-            {
-              type: "text",
-              text: "Charge",
-            },
-            {
-              type: "gauge",
-              min: 0,
-              max: 100,
-              labelFormula:
-                '${round(device("Area Power Control").logicValues.Charge / device("Area Power Control").logicValues.Maximum * 100, 0)}%',
-              valueFormula: `device("Area Power Control").logicValues.Charge / device("Area Power Control").logicValues.Maximum * 100`,
-            },
-            {
-              type: "text",
-              text: "Usage",
-            },
-            {
-              type: "gauge",
-              min: 0,
-              max: 5000,
-              labelFormula:
-                '${round(device("Area Power Control").logicValues.PowerActual, 0)} w',
-              valueFormula: `round(device("Area Power Control").logicValues.PowerActual, 0)`,
-            },
-          ],
-        },
-        {
-          type: "line-chart",
-          series: [
-            {
-              valueFormula:
-                'round(device("Area Power Control").logicValues.Charge w, 0, w) to kw',
-              title: "Stored Power (kw)",
-              axis: {
-                min: 0,
-                max: 'device("Area Power Control").logicValues.Maximum w to kw',
-              },
-            },
-            {
-              valueFormula: `round(device("Area Power Control").logicValues.PowerActual, 0)`,
-              title: "Usage (w)",
-              axis: {
-                min: 0,
-                max: 5000,
-              },
-            },
-          ],
-        },
-      ],
-    },
-  },
-];
+import { ApiError } from "@/ApiError";
+
+import { HmiScreen, HmiScreenId } from "./types";
 
 @injectable()
 @singleton()
 export class HmiScreenRepository {
+  constructor(@inject("StationeersApiUrl") private _url: string) {}
+
   async getScreensForDisplay(displayReferenceId: string): Promise<HmiScreen[]> {
-    return testScreens;
+    return this._getLocalScreens();
   }
 
   async getScreen(id: string): Promise<HmiScreen | null> {
-    return testScreens.find((x) => x.id === id) ?? null;
+    const screens = await this._getLocalScreens();
+    return screens.find((x) => x.id === id) ?? null;
+  }
+
+  private async _getLocalScreens(): Promise<HmiScreen[]> {
+    const req = await fetch(`${this._url}/station-hmi/hmi-configs`);
+    if (req.status !== 200) {
+      throw new ApiError(req.status, req.statusText);
+    }
+
+    const body: HmiScreen[] = await req.json();
+    return body;
   }
 }

@@ -62,14 +62,12 @@ const DisplayLoadedContent: React.FC<{ display: DeviceApiObject }> = ({
   }
 
   return (
-    <Paper>
-      <Stack direction="column" spacing={2}>
-        {screens.map(({ title, id }) => (
-          <ButtonLink key={id} to={`hmi-screens/${id}`}>
-            {title}
-          </ButtonLink>
-        ))}
-      </Stack>
-    </Paper>
+    <Stack direction="column" spacing={2}>
+      {screens.map(({ title, id }) => (
+        <ButtonLink key={id} to={`hmi-screens/${id}`}>
+          {title}
+        </ButtonLink>
+      ))}
+    </Stack>
   );
 };
