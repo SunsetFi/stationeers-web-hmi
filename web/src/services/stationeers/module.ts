@@ -7,6 +7,7 @@ import {
   StationeersApiUrl,
   stationeersApiUrlFactory,
 } from "./StationeersApiUrl";
+import { DeviceValueFormulaObservationSource } from "./devices/DeviceValueFormulaObservationSource";
 
 export default new ContainerModule((bind) => {
   bind(StationeersApiUrl)
@@ -14,5 +15,6 @@ export default new ContainerModule((bind) => {
     .inSingletonScope();
   bind(DeviceFormulaObservationSource);
   bind(DevicesSource);
+  bind(DeviceValueFormulaObservationSource);
   bind(StationeersApi);
 });

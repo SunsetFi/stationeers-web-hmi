@@ -91,6 +91,9 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
         let currentValue: number | null = null;
         const valueSubscription = valueFormula.subscribe((value) => {
           currentValue = Number(value);
+          if (Number.isNaN(currentValue)) {
+            currentValue = null;
+          }
         });
 
         const sampler = setInterval(() => {

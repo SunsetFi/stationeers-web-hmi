@@ -17,13 +17,15 @@ export interface TextWidget extends WidgetBase {
 export const TextWidgetDef: WidgetDef<TextWidget> = {
   Component: ({ widget }: { widget: TextWidget }) => {
     const formulaCompiler = useDIDependency(FormulaCompiler);
+    const [err, setErr] = React.useState<Error | undefined>(undefined);
     const value = useObservation(
       () => formulaCompiler.compileTemplateString(widget.text),
-      [widget.text]
+      [widget.text],
+      { onError: setErr }
     );
     return (
       <Typography sx={{ alignSelf: "center" }} variant="h4">
-        {value}
+        {err ? err.message : value}
       </Typography>
     );
   },
