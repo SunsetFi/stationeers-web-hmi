@@ -1,6 +1,6 @@
 import { inject, injectable, singleton } from "microinject";
 
-import { BehaviorSubject, Observable, mergeMap } from "rxjs";
+import { BehaviorSubject, Observable, switchMap } from "rxjs";
 
 import { StationeersApi } from "../stationeers/StationeersApi";
 import { DeviceApiObject } from "../stationeers/api-types";
@@ -18,7 +18,7 @@ export class HmiContext {
 
   constructor(@inject(StationeersApi) private readonly _api: StationeersApi) {
     this._display$ = this._displayReferenceId$.pipe(
-      mergeMap((id) =>
+      switchMap((id) =>
         id
           ? promiseToLoadingBehaviorObservable(this._api.getDevice(id))
           : Promise.resolve(null)

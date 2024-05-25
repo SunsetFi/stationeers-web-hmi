@@ -37,7 +37,6 @@ const DisplayFrame: React.FC<DisplayFrameProps> = ({ children }) => {
   const [y, setY] = React.useState(Number.NaN);
 
   React.useEffect(() => {
-    console.log("Frame capturing", displayReferenceId ?? null);
     hmiContext.setDisplayReferenceId(displayReferenceId ?? null);
     return () => {
       hmiContext.setDisplayReferenceId(null);

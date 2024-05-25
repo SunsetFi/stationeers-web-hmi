@@ -1,8 +1,8 @@
 import { ContainerModule } from "microinject";
 
-import { DevicesSource } from "./DevicesSource";
+import { DevicesSource } from "./devices/DevicesSource";
 import { StationeersApi } from "./StationeersApi";
-import { DeviceFormulaObservationSource } from "./DeviceFormulaObservationSource";
+import { DeviceFormulaObservationSource } from "./devices/DeviceFormulaObservationSource";
 import {
   StationeersApiUrl,
   stationeersApiUrlFactory,
