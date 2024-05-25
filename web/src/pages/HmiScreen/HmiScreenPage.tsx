@@ -11,6 +11,7 @@ import { usePromise } from "@/hooks/use-promise";
 
 import DisplayFrame from "@/components/DisplayFrame";
 import Center from "@/components/Center";
+import ErrorBoundary from "@/components/ErrorBoundary";
 
 const HmiScreenPage = () => {
   const screenRepository = useDIDependency(HmiScreenRepository);
@@ -37,10 +38,12 @@ const HmiScreenPage = () => {
     );
   } else {
     content = (
-      <WidgetRenderer
-        widget={screen.root}
-        sx={{ width: "100%", height: "100%" }}
-      />
+      <ErrorBoundary>
+        <WidgetRenderer
+          widget={screen.root}
+          sx={{ width: "100%", height: "100%" }}
+        />
+      </ErrorBoundary>
     );
   }
 
