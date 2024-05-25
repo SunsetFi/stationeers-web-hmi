@@ -2,7 +2,9 @@ import { injectable, provides, singleton } from "microinject";
 import { Observable, switchMap, combineLatest, map } from "rxjs";
 
 import { FormulaObservationSource } from "@/services/formula/FormulaObservationSource";
+
 import { DeviceModel } from "../devices/DeviceModel";
+import { DeviceFormulaObject } from "../devices/DeviceFormulaObject";
 
 @injectable()
 @singleton()
@@ -17,7 +19,12 @@ export class ReadLogicValueFormulaObservationSource
 
   resolve(args: Observable<any>[]): Observable<any> {
     const [devices, logicValue] = args as [
-      Observable<DeviceModel | DeviceModel[]>,
+      Observable<
+        | DeviceModel
+        | DeviceFormulaObject
+        | DeviceModel[]
+        | DeviceFormulaObject[]
+      >,
       Observable<string>,
     ];
 

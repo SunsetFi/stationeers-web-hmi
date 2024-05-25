@@ -3,6 +3,7 @@ import { Observable, switchMap } from "rxjs";
 
 import { FormulaObservationSource } from "@/services/formula/FormulaObservationSource";
 import { isReferenceId } from "@/services/stationeers/api-types";
+import { modelToDeviceFormulaObject } from "@/services/stationeers/devices/DeviceFormulaObject";
 
 import { HmiConnectedDevicesSource } from "../HmiConnectedDeviceSource";
 
@@ -35,7 +36,8 @@ export class DeviceFormulaObservationSource
         } else {
           throw new Error("Invalid device ID.");
         }
-      })
+      }),
+      switchMap((device) => modelToDeviceFormulaObject(device))
     );
   }
 }

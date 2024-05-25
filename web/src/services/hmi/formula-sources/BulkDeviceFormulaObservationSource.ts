@@ -1,12 +1,16 @@
 import { inject, injectable, provides, singleton } from "microinject";
-import { Observable, switchMap, combineLatest } from "rxjs";
+import { Observable, switchMap, combineLatest, map } from "rxjs";
+
+import { observeAll } from "@/observables";
 
 import { PollingScheduler } from "@/services/polling";
 import { HmiContext } from "@/services/hmi/HmiContext";
 import { FormulaObservationSource } from "@/services/formula/FormulaObservationSource";
 import { StationeersApi } from "@/services/stationeers/StationeersApi";
-import { HmiConnectedDevicesSource } from "../HmiConnectedDeviceSource";
 import { DeviceApiObject } from "@/services/stationeers/api-types";
+import { modelToDeviceFormulaObject } from "@/services/stationeers/devices/DeviceFormulaObject";
+
+import { HmiConnectedDevicesSource } from "../HmiConnectedDeviceSource";
 
 @injectable()
 @singleton()
@@ -66,7 +70,11 @@ export class BulkDeviceFormulaObservationSource
             this._connectedDevicesSource.getDeviceById(device.referenceId)
           )
         );
-      })
+      }),
+      map((devices) =>
+        devices.map((device) => modelToDeviceFormulaObject(device))
+      ),
+      observeAll()
     );
   }
 }

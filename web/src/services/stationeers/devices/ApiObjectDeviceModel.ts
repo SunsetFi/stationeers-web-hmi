@@ -42,7 +42,7 @@ export class ApiObjectDeviceModel implements DeviceModel {
   get displayName$(): Observable<string> {
     if (!this._displayName$) {
       this._displayName$ = this._data$.pipe(
-        map(() => this.displayName),
+        map((data) => data.displayName),
         distinctUntilChanged(),
         shareReplay(1)
       );
@@ -59,7 +59,7 @@ export class ApiObjectDeviceModel implements DeviceModel {
   get logicValues$(): Observable<LogicValues> {
     if (!this._logicValues$) {
       this._logicValues$ = this._data$.pipe(
-        map(() => this.logicValues),
+        map((data) => data.logicValues),
         distinctUntilChanged(isEqual),
         shareReplay(1)
       );
@@ -69,8 +69,16 @@ export class ApiObjectDeviceModel implements DeviceModel {
   }
 
   // FIXME: We should support deep observation in the formula
+  private _publicData$: Observable<DeviceApiObject> | null = null;
   get data$(): Observable<DeviceApiObject> {
-    return this._data$;
+    if (!this._publicData$) {
+      this._publicData$ = this._data$.pipe(
+        distinctUntilChanged(isEqual),
+        shareReplay(1)
+      );
+    }
+
+    return this._publicData$;
   }
 
   _update(data: DeviceApiObject) {
