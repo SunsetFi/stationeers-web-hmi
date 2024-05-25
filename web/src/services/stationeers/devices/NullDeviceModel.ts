@@ -38,7 +38,7 @@ export class NullDeviceModel implements DeviceModel {
       logicValues: Object.freeze({}),
       logicSlotValues: Object.freeze({}),
       slotReferenceIds: Object.freeze({}),
-      cableNetworkIds: [],
+      dataNetworkId: null,
     } satisfies DeviceApiObject)
   );
   get data$(): Observable<DeviceApiObject> {

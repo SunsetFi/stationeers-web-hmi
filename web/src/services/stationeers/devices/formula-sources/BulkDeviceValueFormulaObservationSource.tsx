@@ -46,17 +46,22 @@ export class BulkDevicePrefabLogicValueFormulaObservationSource
     }
 
     return combineLatest([
-      this._hmiContext.cableNetworkId$,
+      this._hmiContext.dataNetworkId$,
       prefabName,
       logicValue,
     ]).pipe(
-      switchMap(([cableNetworkIds, prefabName, logicValue]) => {
+      switchMap(([dataNetworkId, prefabName, logicValue]) => {
         return new Observable<any>((subscriber) => {
           const subscription = this._pollingScheduler.addTask(async () => {
+            if (dataNetworkId == null) {
+              subscriber.next([]);
+              return;
+            }
+
             try {
               const devices = await this._api.queryDevices({
                 prefabNames: [prefabName],
-                cableNetworkIds: cableNetworkIds,
+                dataNetworkIds: [dataNetworkId],
                 matchIntersection: true,
               });
 

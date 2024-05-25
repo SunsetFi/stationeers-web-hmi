@@ -9,7 +9,7 @@ export interface DeviceQueryPayload {
   prefabNames?: readonly string[];
   prefabHashes?: readonly number[];
   displayNames?: readonly string[];
-  cableNetworkIds?: readonly string[];
+  dataNetworkIds?: readonly string[];
 
   matchIntersection?: boolean;
 }

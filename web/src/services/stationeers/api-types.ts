@@ -28,5 +28,5 @@ export interface DeviceApiObject {
   logicValues: LogicValues;
   logicSlotValues: Record<string, LogicValues>;
   slotReferenceIds: Record<string, ReferenceId>;
-  cableNetworkIds: string[];
+  dataNetworkId: string | null;
 }

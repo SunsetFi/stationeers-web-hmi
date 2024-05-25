@@ -14,6 +14,8 @@ import { startTransition } from "react";
 
 import { cloneDeepFreeze } from "@/utils";
 
+import { HmiContext } from "@/services/hmi/HmiContext";
+
 import { Initializable } from "../../Initializable";
 import { PollingScheduler } from "../../polling";
 
@@ -22,7 +24,6 @@ import { StationeersApi } from "../StationeersApi";
 
 import { DeviceModel } from "./DeviceModel";
 import { NullDeviceModel } from "./NullDeviceModel";
-import { HmiContext } from "@/services/hmi/HmiContext";
 
 @injectable()
 @singleton()
@@ -204,7 +205,7 @@ class DisplayNameDeviceModel implements DeviceModel {
   private readonly _resolved$: BehaviorSubject<DeviceModel>;
   private _resolvedNameChangeSubscription: Subscription | null = null;
   private _scheduledResolve: number | null = null;
-  private _currentNetworkIds: readonly string[] = [];
+  private _currentNetworkId: string | null = null;
 
   constructor(
     private readonly _displayName: string,
@@ -216,8 +217,8 @@ class DisplayNameDeviceModel implements DeviceModel {
     ) => DataDeviceModel
   ) {
     // FIXME: This is never unsubscribed to.
-    this._hmiContext.cableNetworkId$.subscribe((networkIds) => {
-      this._currentNetworkIds = networkIds;
+    this._hmiContext.dataNetworkId$.subscribe((networkId) => {
+      this._currentNetworkId = networkId;
       this._scheduleResolve();
     });
 
@@ -281,13 +282,21 @@ class DisplayNameDeviceModel implements DeviceModel {
   }
 
   private async _resolveDevice() {
+    if (this._currentNetworkId == null) {
+      this._resolvedNameChangeSubscription?.unsubscribe();
+      this._resolvedNameChangeSubscription = null;
+      this._resolved$.next(new NullDeviceModel());
+      this._scheduleResolve();
+      return;
+    }
+
     try {
       // TODO: If we were resolved to an item, we won't be needing it anymore.
       // However, since we registered it with DevicesSource, we are tracking it forever.
       // We need our items to delete themselves when they are no longer needed.
       const [item] = await this._api.queryDevices({
         displayNames: [this._displayName],
-        cableNetworkIds: this._currentNetworkIds,
+        dataNetworkIds: [this._currentNetworkId],
         matchIntersection: true,
       });
 
