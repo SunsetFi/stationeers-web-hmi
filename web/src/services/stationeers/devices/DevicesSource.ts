@@ -22,6 +22,7 @@ import { StationeersApi } from "../StationeersApi";
 
 import { DeviceModel } from "./DeviceModel";
 import { NullDeviceModel } from "./NullDeviceModel";
+import { HmiContext } from "@/services/hmi/HmiContext";
 
 @injectable()
 @singleton()
@@ -36,7 +37,8 @@ export class DevicesSource implements Initializable {
   constructor(
     @inject(PollingScheduler)
     private readonly _pollingScheduler: PollingScheduler,
-    @inject(StationeersApi) private readonly _api: StationeersApi
+    @inject(StationeersApi) private readonly _api: StationeersApi,
+    @inject(HmiContext) private readonly _hmiContext: HmiContext
   ) {}
 
   onInitialize(): void {
@@ -63,6 +65,7 @@ export class DevicesSource implements Initializable {
         displayName,
         new NullDeviceModel(),
         this._api,
+        this._hmiContext,
         (data) => this._getOrUpdateDeviceModel(data)
       );
 
@@ -193,18 +196,31 @@ class DataDeviceModel implements DeviceModel {
  * When the display name changes, the model will attempt to resolve a new device with the given name.
  */
 class DisplayNameDeviceModel implements DeviceModel {
+  // FIXME: This model is constantly monitoring the game but has no teardown.
+  // We need to track subscriptions and tear down our tracking once everyone unsubscribes.
+
+  // FIXME: This is kinda a mess since we added network id restrictions.  Clean it up.
+
   private readonly _resolved$: BehaviorSubject<DeviceModel>;
   private _resolvedNameChangeSubscription: Subscription | null = null;
   private _scheduledResolve: number | null = null;
+  private _currentNetworkIds: readonly string[] = [];
 
   constructor(
     private readonly _displayName: string,
     initialModel: DeviceModel,
     private readonly _api: StationeersApi,
+    private readonly _hmiContext: HmiContext,
     private readonly _getOrUpdateDeviceModel: (
       data: DeviceApiObject
     ) => DataDeviceModel
   ) {
+    // FIXME: This is never unsubscribed to.
+    this._hmiContext.cableNetworkId$.subscribe((networkIds) => {
+      this._currentNetworkIds = networkIds;
+      this._scheduleResolve();
+    });
+
     this._resolved$ = new BehaviorSubject(initialModel);
     this._subscribeToResolved();
   }
@@ -266,8 +282,13 @@ class DisplayNameDeviceModel implements DeviceModel {
 
   private async _resolveDevice() {
     try {
+      // TODO: If we were resolved to an item, we won't be needing it anymore.
+      // However, since we registered it with DevicesSource, we are tracking it forever.
+      // We need our items to delete themselves when they are no longer needed.
       const [item] = await this._api.queryDevices({
         displayNames: [this._displayName],
+        cableNetworkIds: this._currentNetworkIds,
+        matchIntersection: true,
       });
 
       if (!item) {

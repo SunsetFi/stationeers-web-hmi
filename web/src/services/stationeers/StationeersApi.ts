@@ -4,11 +4,14 @@ import { ApiError } from "@/ApiError";
 
 import { DeviceApiObject } from "./api-types";
 
-export interface ThingQueryPayload {
-  referenceIds?: string[];
-  prefabNames?: string[];
-  prefabHashes?: number[];
-  displayNames?: string[];
+export interface DeviceQueryPayload {
+  referenceIds?: readonly string[];
+  prefabNames?: readonly string[];
+  prefabHashes?: readonly number[];
+  displayNames?: readonly string[];
+  cableNetworkIds?: readonly string[];
+
+  matchIntersection?: boolean;
 }
 
 @injectable()
@@ -41,7 +44,7 @@ export class StationeersApi {
     return body;
   }
 
-  async queryDevices(query: ThingQueryPayload): Promise<DeviceApiObject[]> {
+  async queryDevices(query: DeviceQueryPayload): Promise<DeviceApiObject[]> {
     const req = await fetch(`${this._url}/api/devices/query`, {
       method: "POST",
       headers: {

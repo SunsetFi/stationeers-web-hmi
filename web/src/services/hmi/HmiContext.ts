@@ -1,10 +1,13 @@
 import { inject, injectable, singleton } from "microinject";
 
-import { BehaviorSubject, Observable, switchMap } from "rxjs";
+import { BehaviorSubject, Observable, map, shareReplay, switchMap } from "rxjs";
 
 import { StationeersApi } from "../stationeers/StationeersApi";
 import { DeviceApiObject } from "../stationeers/api-types";
-import { promiseToLoadingBehaviorObservable } from "@/observables";
+import {
+  distinctUntilShallowArrayChanged,
+  promiseToLoadingBehaviorObservable,
+} from "@/observables";
 import { useDIDependency } from "@/container";
 import { useObservation } from "@/hooks/use-observation";
 
@@ -22,7 +25,8 @@ export class HmiContext {
         id
           ? promiseToLoadingBehaviorObservable(this._api.getDevice(id))
           : Promise.resolve(null)
-      )
+      ),
+      shareReplay(1)
     );
   }
 
@@ -36,6 +40,17 @@ export class HmiContext {
 
   get display$() {
     return this._display$;
+  }
+
+  private _cableNetworkIds$: Observable<readonly string[]> | null = null;
+  get cableNetworkId$() {
+    if (!this._cableNetworkIds$) {
+      this._cableNetworkIds$ = this.display$.pipe(
+        map((display) => display?.cableNetworkIds ?? []),
+        distinctUntilShallowArrayChanged()
+      );
+    }
+    return this._cableNetworkIds$;
   }
 }
 

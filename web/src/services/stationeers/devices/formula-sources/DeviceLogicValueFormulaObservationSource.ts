@@ -8,17 +8,17 @@ import {
   distinctUntilChanged,
 } from "rxjs";
 
-import { FormulaObservationSource } from "../../formula/FormulaObservationSource";
+import { FormulaObservationSource } from "../../../formula/FormulaObservationSource";
 
-import { isReferenceId } from "../api-types";
+import { isReferenceId } from "../../api-types";
 
-import { DevicesSource } from "./DevicesSource";
-import { NullDeviceModel } from "./NullDeviceModel";
+import { DevicesSource } from "../DevicesSource";
+import { NullDeviceModel } from "../NullDeviceModel";
 
 @injectable()
 @singleton()
 @provides(FormulaObservationSource)
-export class DeviceValueFormulaObservationSource
+export class DeviceLogicValueFormulaObservationSource
   implements FormulaObservationSource
 {
   constructor(
