@@ -9,6 +9,11 @@ export class NullDeviceModel implements DeviceModel {
     return false;
   }
 
+  private readonly _exists$ = observableOf(false);
+  get exists$(): Observable<boolean> {
+    return this._exists$;
+  }
+
   get referenceId(): string {
     return "0";
   }
@@ -24,6 +29,11 @@ export class NullDeviceModel implements DeviceModel {
 
   get logicValues(): LogicValues {
     return {};
+  }
+
+  private readonly _logicValues$ = observableOf(Object.freeze({}));
+  get logicValues$(): Observable<LogicValues> {
+    return this._logicValues$;
   }
 
   private readonly _data$ = observableOf(

@@ -1,12 +1,10 @@
 import { inject, injectable, provides, singleton } from "microinject";
-import { Observable, switchMap, of as observableOf } from "rxjs";
+import { Observable, switchMap } from "rxjs";
 
-import { FormulaObservationSource } from "../../../formula/FormulaObservationSource";
+import { FormulaObservationSource } from "@/services/formula/FormulaObservationSource";
+import { isReferenceId } from "@/services/stationeers/api-types";
 
-import { isReferenceId } from "../../api-types";
-
-import { DevicesSource } from "../DevicesSource";
-import { NullDeviceModel } from "../NullDeviceModel";
+import { HmiConnectedDevicesSource } from "../HmiConnectedDeviceSource";
 
 @injectable()
 @singleton()
@@ -15,7 +13,8 @@ export class DeviceFormulaObservationSource
   implements FormulaObservationSource
 {
   constructor(
-    @inject(DevicesSource) private readonly _devicesSource: DevicesSource
+    @inject(HmiConnectedDevicesSource)
+    private readonly _devicesSource: HmiConnectedDevicesSource
   ) {}
 
   readonly type = "function";
@@ -34,10 +33,9 @@ export class DeviceFormulaObservationSource
         } else if (typeof deviceId === "string") {
           return this._devicesSource.getDeviceByDisplayName(deviceId);
         } else {
-          return observableOf(new NullDeviceModel());
+          throw new Error("Invalid device ID.");
         }
-      }),
-      switchMap((device) => device.data$)
+      })
     );
   }
 }

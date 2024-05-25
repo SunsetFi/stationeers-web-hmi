@@ -1,8 +1,6 @@
 import { ContainerModule } from "microinject";
 
-import { DeviceFormulaObservationSource } from "./devices/formula-sources/DeviceFormulaObservationSource";
-import { DeviceLogicValueFormulaObservationSource } from "./devices/formula-sources/DeviceLogicValueFormulaObservationSource";
-import { DevicesSource } from "./devices/DevicesSource";
+import { ReadLogicValueFormulaObservationSource } from "./formula-sources/ReadLogicValueFormulaObservationSource";
 
 import { StationeersApi } from "./StationeersApi";
 import {
@@ -11,11 +9,10 @@ import {
 } from "./StationeersApiUrl";
 
 export default new ContainerModule((bind) => {
+  bind(ReadLogicValueFormulaObservationSource);
+
   bind(StationeersApiUrl)
     .toFactory(stationeersApiUrlFactory)
     .inSingletonScope();
-  bind(DeviceFormulaObservationSource);
-  bind(DevicesSource);
-  bind(DeviceLogicValueFormulaObservationSource);
   bind(StationeersApi);
 });

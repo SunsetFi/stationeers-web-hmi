@@ -2,17 +2,7 @@ import { inject, injectable, singleton } from "microinject";
 
 import { ApiError } from "@/ApiError";
 
-import { DeviceApiObject } from "./api-types";
-
-export interface DeviceQueryPayload {
-  referenceIds?: readonly string[];
-  prefabNames?: readonly string[];
-  prefabHashes?: readonly number[];
-  displayNames?: readonly string[];
-  dataNetworkIds?: readonly string[];
-
-  matchIntersection?: boolean;
-}
+import { DeviceApiObject, DeviceQueryPayload } from "./api-types";
 
 @injectable()
 @singleton()

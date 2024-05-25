@@ -9,14 +9,14 @@ import {
   switchMap,
 } from "rxjs";
 
+import { useDIDependency } from "@/container";
+
+import { promiseToLoadingBehaviorObservable } from "@/observables";
+
+import { useObservation } from "@/hooks/use-observation";
+
 import { StationeersApi } from "../stationeers/StationeersApi";
 import { DeviceApiObject } from "../stationeers/api-types";
-import {
-  distinctUntilShallowArrayChanged,
-  promiseToLoadingBehaviorObservable,
-} from "@/observables";
-import { useDIDependency } from "@/container";
-import { useObservation } from "@/hooks/use-observation";
 
 @injectable()
 @singleton()

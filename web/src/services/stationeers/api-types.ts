@@ -30,3 +30,43 @@ export interface DeviceApiObject {
   slotReferenceIds: Record<string, ReferenceId>;
   dataNetworkId: string | null;
 }
+
+export interface DeviceQueryPayload {
+  referenceIds?: readonly string[];
+  prefabNames?: readonly string[];
+  prefabHashes?: readonly number[];
+  displayNames?: readonly string[];
+  dataNetworkIds?: readonly string[];
+
+  matchIntersection?: boolean;
+}
+export function deviceMatchesQuery(
+  device: DeviceApiObject,
+  query: DeviceQueryPayload
+): boolean {
+  if (query.referenceIds && !query.referenceIds.includes(device.referenceId)) {
+    return false;
+  }
+
+  if (query.prefabNames && !query.prefabNames.includes(device.prefabName)) {
+    return false;
+  }
+
+  if (query.prefabHashes && !query.prefabHashes.includes(device.prefabHash)) {
+    return false;
+  }
+
+  if (query.displayNames && !query.displayNames.includes(device.displayName)) {
+    return false;
+  }
+
+  if (
+    query.dataNetworkIds &&
+    (!device.dataNetworkId ||
+      !query.dataNetworkIds.includes(device.dataNetworkId))
+  ) {
+    return false;
+  }
+
+  return true;
+}

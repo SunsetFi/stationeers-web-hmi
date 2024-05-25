@@ -1,57 +1,41 @@
 import { inject, injectable, provides, singleton } from "microinject";
-import {
-  Observable,
-  switchMap,
-  of as observableOf,
-  combineLatest,
-  map,
-  distinctUntilChanged,
-} from "rxjs";
+import { Observable, switchMap, combineLatest } from "rxjs";
 
-import { FormulaObservationSource } from "../../../formula/FormulaObservationSource";
-
-import { isReferenceId } from "../../api-types";
-
-import { DevicesSource } from "../DevicesSource";
-import { NullDeviceModel } from "../NullDeviceModel";
-import { StationeersApi } from "../../StationeersApi";
 import { PollingScheduler } from "@/services/polling";
 import { HmiContext } from "@/services/hmi/HmiContext";
+import { FormulaObservationSource } from "@/services/formula/FormulaObservationSource";
+import { StationeersApi } from "@/services/stationeers/StationeersApi";
+import { HmiConnectedDevicesSource } from "../HmiConnectedDeviceSource";
+import { DeviceApiObject } from "@/services/stationeers/api-types";
 
 @injectable()
 @singleton()
 @provides(FormulaObservationSource)
-export class BulkDevicePrefabLogicValueFormulaObservationSource
+export class BulkDeviceFormulaObservationSource
   implements FormulaObservationSource
 {
   constructor(
     @inject(StationeersApi) private readonly _api: StationeersApi,
     @inject(PollingScheduler)
     private readonly _pollingScheduler: PollingScheduler,
-    @inject(HmiContext) private readonly _hmiContext: HmiContext
+    @inject(HmiContext) private readonly _hmiContext: HmiContext,
+    @inject(HmiConnectedDevicesSource)
+    private readonly _connectedDevicesSource: HmiConnectedDevicesSource
   ) {}
 
   readonly type = "function";
-  readonly name = "bulkDevicePrefabLogicValue";
+  readonly name = "devicesByPrefab";
 
   resolve(args: Observable<any>[]): Observable<any> {
-    const [prefabName, logicValue] = args;
+    const [prefabName] = args;
 
     if (!prefabName) {
       throw new Error("Prefab Name argument is required.");
     }
 
-    if (!logicValue) {
-      throw new Error("Logic value argument is required.");
-    }
-
-    return combineLatest([
-      this._hmiContext.dataNetworkId$,
-      prefabName,
-      logicValue,
-    ]).pipe(
-      switchMap(([dataNetworkId, prefabName, logicValue]) => {
-        return new Observable<any>((subscriber) => {
+    return combineLatest([this._hmiContext.dataNetworkId$, prefabName]).pipe(
+      switchMap(([dataNetworkId, prefabName]) => {
+        return new Observable<DeviceApiObject[]>((subscriber) => {
           const subscription = this._pollingScheduler.addTask(async () => {
             if (dataNetworkId == null) {
               subscriber.next([]);
@@ -65,11 +49,7 @@ export class BulkDevicePrefabLogicValueFormulaObservationSource
                 matchIntersection: true,
               });
 
-              const values = devices
-                .map((x) => x.logicValues[String(logicValue)] ?? Number.NaN)
-                .filter((x) => !Number.isNaN(x));
-
-              subscriber.next(values);
+              subscriber.next(devices);
             } catch (e) {
               subscriber.error(e);
             }
@@ -79,6 +59,13 @@ export class BulkDevicePrefabLogicValueFormulaObservationSource
             subscription();
           };
         });
+      }),
+      switchMap((devices) => {
+        return combineLatest(
+          devices.map((device) =>
+            this._connectedDevicesSource.getDeviceById(device.referenceId)
+          )
+        );
       })
     );
   }
