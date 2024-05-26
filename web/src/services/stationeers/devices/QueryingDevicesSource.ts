@@ -11,7 +11,6 @@ import { ApiObjectDeviceModel } from "./ApiObjectDeviceModel";
 import { QueryingDeviceModel } from "./QueryingDeviceModel";
 
 import { DeviceModel } from "./DeviceModel";
-import { NullDeviceModel } from "./NullDeviceModel";
 
 export class QueryingDevicesSource {
   private readonly _apiObjectDeviceModels = new Map<

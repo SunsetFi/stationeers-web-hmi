@@ -27,6 +27,7 @@ export interface LineChartSeries {
   title?: string;
   valueFormula: string;
   axis?: {
+    scaleType: "linear" | "log" | "pow" | "sqrt";
     min?: number | string;
     max?: number | string;
   };
@@ -55,7 +56,7 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
       setYAxes(
         new Array(series.length).fill(null).map((_, index) => ({
           id: String(index),
-          scaleType: "linear",
+          scaleType: series[index].axis?.scaleType ?? "linear",
         }))
       );
 
@@ -65,9 +66,6 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
         // axis
         const { min, max } = item.axis ?? {};
 
-        if (index == 0) {
-          console.log("raw", index, min, max);
-        }
         const min$ =
           typeof min === "string"
             ? formulaCompiler.compileFormula(min).pipe(map((x) => Number(x)))
@@ -77,24 +75,8 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
             ? formulaCompiler.compileFormula(max).pipe(map((x) => Number(x)))
             : observableOf(max);
 
-        if (index == 0) {
-          min$.subscribe({
-            next: (v: string | number | undefined) => {
-              console.log("min", index, v);
-            },
-          });
-          max$.subscribe({
-            next: (v) => {
-              console.log("max", index, v);
-            },
-          });
-        }
-
         subscriptions.push(
           combineLatest([min$, max$]).subscribe(([min, max]) => {
-            if (index == 0) {
-              console.log("resolved", index, min, max);
-            }
             setYAxes((prev) => {
               const copy = [...prev];
               copy[index] = {
@@ -102,7 +84,6 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
                 min: Number(min),
                 max: Number(max),
               };
-              if (index == 0) console.log("setYAxes", index, copy);
               return copy;
             });
           })
@@ -146,8 +127,6 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
         subscriptions.forEach((s) => s.unsubscribe());
       };
     }, []);
-
-    console.log(yAxes);
 
     return (
       <Box
