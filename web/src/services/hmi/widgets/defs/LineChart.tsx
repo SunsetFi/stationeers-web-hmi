@@ -91,8 +91,8 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
               const copy = [...prev];
               copy[index] = {
                 ...copy[index],
-                min: Number(min),
-                max: Number(max),
+                min: !Number.isNaN(min) ? min : undefined,
+                max: !Number.isNaN(max) ? max : undefined,
               };
               return copy;
             });
