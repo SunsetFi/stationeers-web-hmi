@@ -1,12 +1,10 @@
 import React from "react";
 import { Gauge } from "@mui/x-charts";
-import { map, of as observableOf } from "rxjs";
 
-import { useDIDependency } from "@/container";
-
-import { useObservation } from "@/hooks/use-observation";
-
-import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
+import {
+  useHmiScreenFormulaObservation,
+  useHmiScreenTemplateStringObservation,
+} from "../../screens/HmiScreenRenderer/hooks";
 
 import { WidgetBase, commonWidgetStyleToSx } from "../types";
 
@@ -29,38 +27,12 @@ export const GaugeWidgetDef: WidgetDef<GaugeWidget> = {
       ...commonWidgetStyleToSx(widget),
     };
 
-    const formulaCompiler = useDIDependency(FormulaCompiler);
-    const { min, max, valueFormula } = widget;
-    const minValue = useObservation(
-      () =>
-        typeof min === "string"
-          ? formulaCompiler.compileFormula(min).pipe(map((x) => Number(x)))
-          : observableOf(min),
-      [min]
-    );
-    const maxValue = useObservation(
-      () =>
-        typeof max === "string"
-          ? formulaCompiler.compileFormula(max).pipe(map((x) => Number(x)))
-          : observableOf(max),
-      [max]
-    );
-    const value = useObservation(
-      () =>
-        typeof valueFormula === "string"
-          ? formulaCompiler
-              .compileFormula(valueFormula)
-              .pipe(map((x) => Number(x)))
-          : observableOf(valueFormula),
-      [valueFormula]
-    );
-    const text = useObservation(
-      () =>
-        widget.labelFormula
-          ? formulaCompiler.compileTemplateString(widget.labelFormula)
-          : observableOf(null),
-      [widget.labelFormula]
-    );
+    const { min, max, valueFormula, labelFormula } = widget;
+
+    const minValue = useHmiScreenFormulaObservation(min);
+    const maxValue = useHmiScreenFormulaObservation(max);
+    const value = Number(useHmiScreenFormulaObservation(valueFormula));
+    const text = useHmiScreenTemplateStringObservation(labelFormula ?? "");
 
     return (
       <Gauge

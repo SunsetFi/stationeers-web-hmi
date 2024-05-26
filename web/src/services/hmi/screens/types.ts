@@ -7,4 +7,5 @@ export interface HmiScreen {
   id: HmiScreenId;
   title: string;
   root: Widget;
+  dataSources?: Record<string, string>;
 }

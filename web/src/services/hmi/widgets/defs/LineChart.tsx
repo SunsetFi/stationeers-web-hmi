@@ -17,6 +17,7 @@ import { useComponentBounds } from "@/hooks/use-component-bounds";
 import { WidgetBase, commonWidgetStyleToSx } from "../types";
 
 import { WidgetDef } from "./types";
+import { useHmiScreenContext } from "../../screens/HmiScreenRenderer/hooks";
 
 export interface LineChartWidget extends WidgetBase {
   type: "line-chart";
@@ -38,6 +39,8 @@ export interface LineChartSeries {
 export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
   Component: ({ widget }: { widget: LineChartWidget }) => {
     const { series, sampleCount = 60, sampleRate = 1 } = widget;
+
+    const hmiContext = useHmiScreenContext();
 
     const sx: any = {
       width: "100%",
@@ -78,11 +81,15 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
 
         const min$ =
           typeof min === "string"
-            ? formulaCompiler.compileFormula(min).pipe(map((x) => Number(x)))
+            ? formulaCompiler
+                .compileFormula(min, hmiContext)
+                .pipe(map((x) => Number(x)))
             : observableOf(min);
         const max$ =
           typeof max === "string"
-            ? formulaCompiler.compileFormula(max).pipe(map((x) => Number(x)))
+            ? formulaCompiler
+                .compileFormula(max, hmiContext)
+                .pipe(map((x) => Number(x)))
             : observableOf(max);
 
         subscriptions.push(
@@ -100,7 +107,10 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
         );
 
         // value
-        const valueFormula = formulaCompiler.compileFormula(item.valueFormula);
+        const valueFormula = formulaCompiler.compileFormula(
+          item.valueFormula,
+          hmiContext
+        );
         let currentValue: number | null = null;
         const valueSubscription = valueFormula.subscribe((value) => {
           currentValue = Number(value);

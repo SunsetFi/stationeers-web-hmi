@@ -1,6 +1,8 @@
-import { difference, merge } from "lodash";
-import { Observable, map } from "rxjs";
+import { difference, merge, sortBy } from "lodash";
+import { Observable, Subject, map, shareReplay } from "rxjs";
 import { startTransition } from "react";
+
+import { arrayShallowEquals } from "@/utils";
 
 import { PollingScheduler } from "@/services/polling";
 
@@ -11,8 +13,9 @@ import { ApiObjectDeviceModel } from "./ApiObjectDeviceModel";
 import { QueryingDeviceModel } from "./QueryingDeviceModel";
 
 import { DeviceModel } from "./DeviceModel";
+import { DevicesSource } from "./DevicesSource";
 
-export class QueryingDevicesSource {
+export class QueryingDevicesSource implements DevicesSource {
   private readonly _apiObjectDeviceModels = new Map<
     string,
     ApiObjectDeviceModel
@@ -25,13 +28,17 @@ export class QueryingDevicesSource {
     string,
     QueryingDeviceModel
   >();
+  private readonly _prefabNameDeviceObservables = new Map<
+    string,
+    DevicePrefabObservable
+  >();
 
   constructor(
-    pollingScheduler: PollingScheduler,
+    private readonly _pollingScheduler: PollingScheduler,
     private readonly _api: StationeersApi,
     private readonly _globalQuery: Observable<DeviceQueryPayload>
   ) {
-    pollingScheduler.addTask(() => this._updateDevices());
+    _pollingScheduler.addTask(() => this._updateDevices(), "Update Devices");
   }
 
   async getDeviceById(referenceId: string): Promise<DeviceModel> {
@@ -82,6 +89,23 @@ export class QueryingDevicesSource {
     return model;
   }
 
+  getDevicesByPrefabName(prefabName: string): Observable<DeviceModel[]> {
+    let observable = this._prefabNameDeviceObservables.get(prefabName);
+    if (!observable) {
+      observable = new DevicePrefabObservable(
+        prefabName,
+        this._api,
+        this._globalQuery,
+        this._pollingScheduler,
+        (data) => this._getOrUpdateDeviceModel(data)
+      );
+
+      this._prefabNameDeviceObservables.set(prefabName, observable);
+    }
+
+    return observable;
+  }
+
   private async _updateDevices() {
     const existingDeviceIds = Array.from(this._apiObjectDeviceModels.keys());
 
@@ -121,5 +145,58 @@ export class QueryingDevicesSource {
     }
 
     return model;
+  }
+}
+
+class DevicePrefabObservable extends Observable<DeviceModel[]> {
+  private _previousModels: DeviceModel[] | null = null;
+  private _subject$ = new Subject<DeviceModel[]>();
+  private _subscribable$ = this._subject$.pipe(shareReplay(1));
+
+  constructor(
+    private readonly _prefabName: string,
+    private readonly _api: StationeersApi,
+    private readonly _globalQuery: Observable<DeviceQueryPayload>,
+    private readonly _pollingScheduler: PollingScheduler,
+    private readonly _resolveDeviceModel: (data: DeviceApiObject) => DeviceModel
+  ) {
+    super((subscriber) => {
+      return this._subscribable$.subscribe(subscriber);
+    });
+
+    let query: DeviceQueryPayload | null = null;
+    this._globalQuery.subscribe((q) => (query = q));
+
+    this._pollingScheduler.addTask(async () => {
+      console.log("ByPrefab", this._prefabName, query);
+      let devices: DeviceApiObject[];
+      try {
+        devices = await this._api.queryDevices(
+          merge({}, query, {
+            prefabNames: [this._prefabName],
+            matchIntersection: true,
+          })
+        );
+      } catch (e) {
+        console.log("ByPrefab error", this._prefabName, e);
+        this._subject$.error(e);
+        return;
+      }
+
+      devices = sortBy(devices, (d) => d.referenceId);
+      let models = devices.map((d) => this._resolveDeviceModel(d));
+
+      console.log("ByPRefab got models", this._prefabName, models);
+
+      // We could use a BehaviorSubject here, but we want to avoid emitting an empty array at the start.
+      if (
+        !this._previousModels ||
+        !arrayShallowEquals(models, this._previousModels)
+      ) {
+        this._previousModels = models;
+        this._subject$.next(models);
+        console.log("ByPRefab update models", this._prefabName, models);
+      }
+    }, `ByPrefab ${this._prefabName}`);
   }
 }

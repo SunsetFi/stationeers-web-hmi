@@ -1,11 +1,7 @@
 import React from "react";
-import { Theme, Typography } from "@mui/material";
+import { Typography } from "@mui/material";
 
-import { useDIDependency } from "@/container";
-
-import { useObservation } from "@/hooks/use-observation";
-
-import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
+import { useHmiScreenTemplateStringObservation } from "../../screens/HmiScreenRenderer/hooks";
 
 import { WidgetBase, commonWidgetStyleToSx } from "../types";
 
@@ -28,16 +24,10 @@ export const TextWidgetDef: WidgetDef<TextWidget> = {
       sx.fontSize = widget.fontSize;
     }
 
-    const formulaCompiler = useDIDependency(FormulaCompiler);
-    const [err, setErr] = React.useState<Error | undefined>(undefined);
-    const value = useObservation(
-      () => formulaCompiler.compileTemplateString(widget.text),
-      [widget.text],
-      { onError: setErr }
-    );
+    const value = useHmiScreenTemplateStringObservation(widget.text);
     return (
       <Typography sx={sx} variant="h4">
-        {err ? err.message : value}
+        {value}
       </Typography>
     );
   },

@@ -10,6 +10,7 @@ import {
 import { isNumericString } from "@/utils";
 
 import { FormulaObservationSource } from "./FormulaObservationSource";
+import { FormulaContext, NullFormulaContext } from "./FormulaContext";
 
 const NegativeRegex = /(?!x)x/;
 
@@ -81,11 +82,14 @@ export class FormulaCompiler {
     });
   }
 
-  compileTemplateString(string: string): Observable<string> {
+  compileTemplateString(
+    string: string,
+    context: FormulaContext = NullFormulaContext
+  ): Observable<string> {
     const parsed = this._templateParser(string);
 
     const formulaObservations = parsed.variables.map((variable) =>
-      this.compileFormula(variable.name)
+      this.compileFormula(variable.name, context)
     );
 
     if (formulaObservations.length === 0) {
@@ -106,28 +110,27 @@ export class FormulaCompiler {
     );
   }
 
-  compileFormula(expression: string): Observable<string> {
+  compileFormula(
+    expression: string,
+    context: FormulaContext = NullFormulaContext
+  ): Observable<any> {
     const parsed = this._limitedParse(expression);
 
-    return this._compileParsedFormula(parsed).pipe(
+    return this._compileParsedFormula(parsed, context).pipe(
       map((value) => {
-        let result: string;
+        let result: any = value;
         if (math.isUnit(value)) {
-          // Even when using the round function in equations, rounding jank still happens
-          // Limit the precision to trim out the jank
-
           // Get the raw number
-          result = String(value.toNumber());
-        } else {
-          result = value.toString();
+          result = value.toNumber();
         }
 
-        if (isNumericString(result)) {
-          // Get the number with the decimals trimmed out
+        // Even when using the round function in equations, rounding jank still happens
+        // Limit the precision to trim out the jank
+        if (typeof result === "number") {
           // 6 is chosen more or less arbitrarily here.  I don't think we will be called on to display a value
           // with more than this many digits.
           // For completeness, maybe we can do something interesting with computing and limiting the significant figure count.
-          result = round(Number(result), 6).toString();
+          result = round(result, 6);
         }
 
         // If its not a unit, just return the string form regardless of what it is.
@@ -136,7 +139,10 @@ export class FormulaCompiler {
     );
   }
 
-  private _compileParsedFormula(parsed: math.MathNode): Observable<any> {
+  private _compileParsedFormula(
+    parsed: math.MathNode,
+    context: FormulaContext
+  ): Observable<any> {
     const observationMappings: Record<string, Observable<any>> = {};
     let observationIndex = 0;
     function registerObservation(observation: Observable<any>): string {
@@ -152,7 +158,7 @@ export class FormulaCompiler {
     const transformed = parsed.transform((node) => {
       this._validateNodeAllowed(node);
 
-      const observation = this._tryResolveObservableNode(node);
+      const observation = this._tryResolveObservableNode(node, context);
       if (observation) {
         const variableName = registerObservation(observation);
         return new math.SymbolNode(variableName);
@@ -161,7 +167,14 @@ export class FormulaCompiler {
       return node;
     });
 
-    const compiled = transformed.compile();
+    let compiled: math.EvalFunction;
+
+    try {
+      compiled = transformed.compile();
+    } catch (e: any) {
+      e.message = `Error compiling formula \"${parsed.toString()}\": ${e.message}`;
+      throw e;
+    }
 
     if (Object.keys(observationMappings).length === 0) {
       // This is a constant expression
@@ -174,17 +187,30 @@ export class FormulaCompiler {
           ...results,
         };
 
-        const result = compiled.evaluate(scope);
-        return result;
+        try {
+          return compiled.evaluate(scope);
+        } catch (e: any) {
+          e.message = `Error evaluating formula \"${parsed.toString()}\": ${e.message}`;
+          throw e;
+        }
       })
     );
   }
 
   private _tryResolveObservableNode(
-    node: math.MathNode
+    node: math.MathNode,
+    context: FormulaContext
   ): Observable<any> | null {
     if (node.type === "SymbolNode") {
       const symbol = node as math.SymbolNode;
+
+      const contextResolved = context.resolveObservation?.(symbol, (node) =>
+        this._compileParsedFormula(node, context)
+      );
+      if (contextResolved) {
+        return contextResolved;
+      }
+
       const observation = this._observationSources.find(
         (o) => o.type === "symbol" && o.name === symbol.name
       );
@@ -195,11 +221,21 @@ export class FormulaCompiler {
 
     if (node.type === "FunctionNode") {
       const fn = node as math.FunctionNode;
+
+      const contextResolved = context.resolveObservation?.(fn, (node) =>
+        this._compileParsedFormula(node, context)
+      );
+      if (contextResolved) {
+        return contextResolved;
+      }
+
       const observation = this._observationSources.find(
         (o) => o.type === "function" && o.name === fn.fn.name
       );
       if (observation) {
-        const args = fn.args.map((arg) => this._compileParsedFormula(arg));
+        const args = fn.args.map((arg) =>
+          this._compileParsedFormula(arg, context)
+        );
         return observation.resolve(args);
       }
     }

@@ -14,7 +14,7 @@ export class PollingScheduler implements Initializable {
   private _currentTask = 0;
   private _pollingTimeout: number | null = null;
 
-  addTask(task: () => Promise<void>): () => void {
+  addTask(task: () => Promise<void>, name: string = ""): () => void {
     this._tasks.push(task);
     // Execute the new task now so it has data asap.
     task();
