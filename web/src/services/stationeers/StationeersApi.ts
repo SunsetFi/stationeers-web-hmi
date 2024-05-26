@@ -24,16 +24,6 @@ export class StationeersApi {
     return body;
   }
 
-  async getDevices(): Promise<DeviceApiObject[]> {
-    const req = await fetch(`${this._url}/api/devices`);
-    if (req.status !== 200) {
-      throw new ApiError(req.status, req.statusText);
-    }
-
-    const body = await req.json();
-    return body;
-  }
-
   async queryDevices(query: DeviceQueryPayload): Promise<DeviceApiObject[]> {
     const req = await fetch(`${this._url}/api/devices/query`, {
       method: "POST",

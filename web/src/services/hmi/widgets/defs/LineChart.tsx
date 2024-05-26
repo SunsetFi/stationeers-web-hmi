@@ -5,7 +5,7 @@ import {
   LineSeriesType,
   markElementClasses,
 } from "@mui/x-charts";
-import { Subscription, combineLatest, of as observableOf } from "rxjs";
+import { Subscription, combineLatest, of as observableOf, map } from "rxjs";
 import { Box } from "@mui/material";
 
 import { useDIDependency } from "@/container";
@@ -50,7 +50,14 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
     React.useEffect(() => {
       const subscriptions: Subscription[] = [];
 
-      const yAxes: AxisConfig[] = [];
+      // We will get additional calls to setYAxes during the series builtup due to the immediately available observables,
+      // so set up the array first.
+      setYAxes(
+        new Array(series.length).fill(null).map((_, index) => ({
+          id: String(index),
+          scaleType: "linear",
+        }))
+      );
 
       for (let index = 0; index < series.length; index++) {
         const item = series[index];
@@ -58,17 +65,36 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
         // axis
         const { min, max } = item.axis ?? {};
 
+        if (index == 0) {
+          console.log("raw", index, min, max);
+        }
         const min$ =
           typeof min === "string"
-            ? formulaCompiler.compileFormula(min)
+            ? formulaCompiler.compileFormula(min).pipe(map((x) => Number(x)))
             : observableOf(min);
         const max$ =
           typeof max === "string"
-            ? formulaCompiler.compileFormula(max)
+            ? formulaCompiler.compileFormula(max).pipe(map((x) => Number(x)))
             : observableOf(max);
+
+        if (index == 0) {
+          min$.subscribe({
+            next: (v: string | number | undefined) => {
+              console.log("min", index, v);
+            },
+          });
+          max$.subscribe({
+            next: (v) => {
+              console.log("max", index, v);
+            },
+          });
+        }
 
         subscriptions.push(
           combineLatest([min$, max$]).subscribe(([min, max]) => {
+            if (index == 0) {
+              console.log("resolved", index, min, max);
+            }
             setYAxes((prev) => {
               const copy = [...prev];
               copy[index] = {
@@ -76,15 +102,11 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
                 min: Number(min),
                 max: Number(max),
               };
+              if (index == 0) console.log("setYAxes", index, copy);
               return copy;
             });
           })
         );
-
-        const axis: AxisConfig = {
-          id: String(index),
-        };
-        yAxes.push(axis);
 
         // value
         const valueFormula = formulaCompiler.compileFormula(item.valueFormula);
@@ -112,8 +134,6 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
         subscriptions.push(valueSubscription);
       }
 
-      setYAxes(yAxes);
-
       setMuiSeries(
         series.map(({ title }, i) => ({
           label: title,
@@ -126,6 +146,9 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
         subscriptions.forEach((s) => s.unsubscribe());
       };
     }, []);
+
+    console.log(yAxes);
+
     return (
       <Box
         ref={setContainerRef}
@@ -142,7 +165,7 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
           skipAnimation
           series={muiSeries}
           yAxis={yAxes}
-          rightAxis={yAxes.length > 0 ? "1" : undefined}
+          rightAxis={yAxes.length > 1 ? "1" : undefined}
           xAxis={[
             {
               tickNumber: 4,

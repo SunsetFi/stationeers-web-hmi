@@ -14,7 +14,14 @@ import { DeviceModel } from "./DeviceModel";
 import { NullDeviceModel } from "./NullDeviceModel";
 
 export class QueryingDevicesSource {
-  private readonly _dataDeviceModels = new Map<string, ApiObjectDeviceModel>();
+  private readonly _apiObjectDeviceModels = new Map<
+    string,
+    ApiObjectDeviceModel
+  >();
+  private readonly _referenceIdDeviceModels = new Map<
+    string,
+    QueryingDeviceModel
+  >();
   private readonly _displayNameDeviceModels = new Map<
     string,
     QueryingDeviceModel
@@ -29,16 +36,27 @@ export class QueryingDevicesSource {
   }
 
   async getDeviceById(referenceId: string): Promise<DeviceModel> {
-    if (!this._dataDeviceModels.has(referenceId)) {
-      const data = await this._api.getDevice(referenceId);
-      if (!data) {
-        return new NullDeviceModel();
-      }
+    let model = this._referenceIdDeviceModels.get(referenceId);
+    if (!model) {
+      const referenceQuery$ = this._globalQuery.pipe(
+        map((query) =>
+          merge({}, query, {
+            referenceIds: [referenceId],
+            matchIntersection: true,
+          } satisfies DeviceQueryPayload)
+        )
+      );
 
-      this._getOrUpdateDeviceModel(data);
+      model = new QueryingDeviceModel(referenceQuery$, this._api, (data) =>
+        this._getOrUpdateDeviceModel(data)
+      );
+
+      this._referenceIdDeviceModels.set(referenceId, model);
     }
 
-    return this._dataDeviceModels.get(referenceId)!;
+    await model._awaitInitialResolve();
+
+    return model;
   }
 
   async getDeviceByDisplayName(displayName: string): Promise<DeviceModel> {
@@ -66,7 +84,7 @@ export class QueryingDevicesSource {
   }
 
   private async _updateDevices() {
-    const existingDeviceIds = Array.from(this._dataDeviceModels.keys());
+    const existingDeviceIds = Array.from(this._apiObjectDeviceModels.keys());
 
     if (existingDeviceIds.length === 0) {
       return;
@@ -82,10 +100,10 @@ export class QueryingDevicesSource {
     // Perform observable changing actions in a transaction to avoid flooding react with rerenders.
     startTransition(() => {
       referenceIdsToRemove.forEach((id) => {
-        const token = this._dataDeviceModels.get(id);
+        const token = this._apiObjectDeviceModels.get(id);
         if (token) {
           token._delete();
-          this._dataDeviceModels.delete(id);
+          this._apiObjectDeviceModels.delete(id);
         }
       });
 
@@ -95,11 +113,11 @@ export class QueryingDevicesSource {
 
   private _getOrUpdateDeviceModel(device: DeviceApiObject): DeviceModel {
     let model: ApiObjectDeviceModel;
-    if (!this._dataDeviceModels.has(device.referenceId)) {
+    if (!this._apiObjectDeviceModels.has(device.referenceId)) {
       model = new ApiObjectDeviceModel(device);
-      this._dataDeviceModels.set(device.referenceId, model);
+      this._apiObjectDeviceModels.set(device.referenceId, model);
     } else {
-      model = this._dataDeviceModels.get(device.referenceId)!;
+      model = this._apiObjectDeviceModels.get(device.referenceId)!;
       model._update(device);
     }
 
