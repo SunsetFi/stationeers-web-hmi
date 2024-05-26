@@ -20,3 +20,12 @@ export function cloneDeepFreeze(obj: any) {
   Object.freeze(cloned);
   return cloned;
 }
+
+const numericRegex = /^-?\d+(\.\d+)?$/;
+export function isNumericString(value: string) {
+  return numericRegex.test(value);
+}
+
+export function typedKeys<T extends {}>(obj: T): (keyof T)[] {
+  return Object.keys(obj) as (keyof T)[];
+}

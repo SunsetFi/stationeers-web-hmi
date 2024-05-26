@@ -2,7 +2,9 @@ import React from "react";
 
 import { IconName, Icons } from "@/icons";
 
-import { WidgetBase, WidgetDef } from "./types";
+import { WidgetBase } from "../types";
+
+import { WidgetDef } from "./types";
 
 export interface IconWidget extends WidgetBase {
   type: "icon";

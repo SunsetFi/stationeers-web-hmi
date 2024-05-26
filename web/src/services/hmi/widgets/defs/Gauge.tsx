@@ -8,7 +8,9 @@ import { useObservation } from "@/hooks/use-observation";
 
 import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
 
-import { WidgetBase, WidgetDef } from "./types";
+import { WidgetBase, commonWidgetStyleToSx } from "../types";
+
+import { WidgetDef } from "./types";
 
 export interface GaugeWidget extends WidgetBase {
   type: "gauge";
@@ -20,6 +22,13 @@ export interface GaugeWidget extends WidgetBase {
 
 export const GaugeWidgetDef: WidgetDef<GaugeWidget> = {
   Component: ({ widget }: { widget: GaugeWidget }) => {
+    const sx: any = {
+      width: "100px",
+      height: "100px",
+      flexGrow: 0,
+      ...commonWidgetStyleToSx(widget),
+    };
+
     const formulaCompiler = useDIDependency(FormulaCompiler);
     const { min, max, valueFormula } = widget;
     const minValue = useObservation(
@@ -55,12 +64,7 @@ export const GaugeWidgetDef: WidgetDef<GaugeWidget> = {
 
     return (
       <Gauge
-        sx={{
-          width: "100px",
-          height: "100px",
-          flexGrow: 0,
-          fontSize: "initial",
-        }}
+        sx={sx}
         valueMin={minValue}
         valueMax={maxValue}
         value={value}

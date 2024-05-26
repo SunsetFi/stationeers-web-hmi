@@ -14,7 +14,9 @@ import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
 
 import { useComponentBounds } from "@/hooks/use-component-bounds";
 
-import { WidgetBase, WidgetDef } from "./types";
+import { WidgetBase, commonWidgetStyleToSx } from "../types";
+
+import { WidgetDef } from "./types";
 
 export interface LineChartWidget extends WidgetBase {
   type: "line-chart";
@@ -36,6 +38,14 @@ export interface LineChartSeries {
 export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
   Component: ({ widget }: { widget: LineChartWidget }) => {
     const { series, sampleCount = 60, sampleRate = 1 } = widget;
+
+    const sx: any = {
+      width: "100%",
+      height: "100%",
+      flex: "1",
+      minHeight: 0,
+      ...commonWidgetStyleToSx(widget),
+    };
 
     const [containerRef, setContainerRef] =
       React.useState<HTMLDivElement | null>(null);
@@ -129,10 +139,7 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
     }, []);
 
     return (
-      <Box
-        ref={setContainerRef}
-        sx={{ width: "100%", height: "100%", flex: "1", minHeight: 0 }}
-      >
+      <Box ref={setContainerRef} sx={sx}>
         <LineChart
           width={width}
           height={height}

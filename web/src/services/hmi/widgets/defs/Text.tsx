@@ -1,5 +1,5 @@
 import React from "react";
-import { Typography } from "@mui/material";
+import { Theme, Typography } from "@mui/material";
 
 import { useDIDependency } from "@/container";
 
@@ -7,15 +7,27 @@ import { useObservation } from "@/hooks/use-observation";
 
 import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
 
-import { WidgetBase, WidgetDef } from "./types";
+import { WidgetBase, commonWidgetStyleToSx } from "../types";
+
+import { WidgetDef } from "./types";
 
 export interface TextWidget extends WidgetBase {
   type: "text";
   text: string;
+  fontSize?: number;
 }
 
 export const TextWidgetDef: WidgetDef<TextWidget> = {
   Component: ({ widget }: { widget: TextWidget }) => {
+    const sx: any = {
+      alignSelf: "center",
+      ...commonWidgetStyleToSx(widget),
+    };
+
+    if (widget.fontSize) {
+      sx.fontSize = widget.fontSize;
+    }
+
     const formulaCompiler = useDIDependency(FormulaCompiler);
     const [err, setErr] = React.useState<Error | undefined>(undefined);
     const value = useObservation(
@@ -24,7 +36,7 @@ export const TextWidgetDef: WidgetDef<TextWidget> = {
       { onError: setErr }
     );
     return (
-      <Typography sx={{ alignSelf: "center" }} variant="h4">
+      <Typography sx={sx} variant="h4">
         {err ? err.message : value}
       </Typography>
     );

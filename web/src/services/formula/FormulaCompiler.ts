@@ -1,10 +1,13 @@
 import { inject, injectable, singleton } from "microinject";
 import { Observable, combineLatest, map, of as observableOf } from "rxjs";
 import * as math from "mathjs";
+import { round } from "lodash";
 import {
   ParsedString,
   parseStringTemplateGenerator,
 } from "string-template-parser";
+
+import { isNumericString } from "@/utils";
 
 import { FormulaObservationSource } from "./FormulaObservationSource";
 
@@ -108,27 +111,27 @@ export class FormulaCompiler {
 
     return this._compileParsedFormula(parsed).pipe(
       map((value) => {
+        let result: string;
         if (math.isUnit(value)) {
           // Even when using the round function in equations, rounding jank still happens
           // Limit the precision to trim out the jank
 
           // Get the raw number
-          const raw = value.toNumber();
+          result = String(value.toNumber());
+        } else {
+          result = value.toString();
+        }
 
+        if (isNumericString(result)) {
           // Get the number with the decimals trimmed out
           // 6 is chosen more or less arbitrarily here.  I don't think we will be called on to display a value
           // with more than this many digits.
           // For completeness, maybe we can do something interesting with computing and limiting the significant figure count.
-          // Note that .toFixed will add padding zeros after the decimal to match the 6 places.
-          // We dont want to show that, so its back into a number it goes.
-          const truncated = Number(raw.toFixed(6));
-
-          // Return the string value
-          return truncated.toString();
+          result = round(Number(result), 6).toString();
         }
 
         // If its not a unit, just return the string form regardless of what it is.
-        return value.toString();
+        return result;
       })
     );
   }
