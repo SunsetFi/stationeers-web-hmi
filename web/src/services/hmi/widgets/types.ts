@@ -25,11 +25,11 @@ export interface CommonWidgetStyle {
   paddingBottom?: number;
   padding?: number;
 
-  alignSelf?: "start" | "end" | "center" | "stretch" | "baseline";
-  justifySelf?: "start" | "end" | "center" | "stretch" | "baseline";
+  align?: "start" | "end" | "center" | "stretch" | "baseline";
+  justifyChildren?: "start" | "end" | "center" | "stretch" | "baseline";
 }
 
-const alignSelfMap: Record<Required<CommonWidgetStyle>["alignSelf"], string> = {
+const alignSelfMap: Record<Required<CommonWidgetStyle>["align"], string> = {
   start: "flex-start",
   end: "flex-end",
   center: "center",
@@ -38,7 +38,7 @@ const alignSelfMap: Record<Required<CommonWidgetStyle>["alignSelf"], string> = {
 };
 
 const justifySelfMap: Record<
-  Required<CommonWidgetStyle>["justifySelf"],
+  Required<CommonWidgetStyle>["justifyChildren"],
   string
 > = {
   start: "flex-start",
@@ -60,8 +60,8 @@ export function commonWidgetStyleToSx(style: CommonWidgetStyle): SxProps {
     paddingTop,
     paddingBottom,
     padding,
-    alignSelf,
-    justifySelf,
+    align,
+    justifyChildren: justify,
   } = style;
 
   const sx = {
@@ -77,8 +77,8 @@ export function commonWidgetStyleToSx(style: CommonWidgetStyle): SxProps {
     paddingBottom,
     padding,
 
-    alignSelf: alignSelf ? alignSelfMap[alignSelf] : undefined,
-    justifySelf: justifySelf ? justifySelfMap[justifySelf] : undefined,
+    alignSelf: align ? alignSelfMap[align] : undefined,
+    justifySelf: justify ? justifySelfMap[justify] : undefined,
   };
 
   // Dont forward undefined, so the widgets can supply defaults that wont get overridden.

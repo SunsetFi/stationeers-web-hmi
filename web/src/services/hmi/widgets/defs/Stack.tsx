@@ -10,7 +10,7 @@ import { WidgetDef } from "./types";
 export interface StackWidget extends WidgetBase {
   type: "stack";
   direction: "row" | "column";
-  justify?: "start" | "end" | "center" | "stretch";
+  justifyChildren?: "start" | "end" | "center" | "stretch";
   gap?: number;
   children: Widget[];
 }
@@ -34,8 +34,8 @@ export const StackWidgetDef: WidgetDef<StackWidget> = {
         break;
     }
 
-    if (widget.justify) {
-      sx.justifyContent = widget.justify;
+    if (widget.justifyChildren) {
+      sx.justifyContent = widget.justifyChildren;
       if (sx.justifyContent === "start") {
         sx.justifyContent = "flex-start";
       }
