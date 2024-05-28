@@ -14,10 +14,10 @@ import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
 
 import { useComponentBounds } from "@/hooks/use-component-bounds";
 
+import { useHmiScreenContext } from "../../screens/HmiScreenRenderer/hooks";
 import { WidgetBase, commonWidgetStyleToSx } from "../types";
 
 import { WidgetDef } from "./types";
-import { useHmiScreenContext } from "../../screens/HmiScreenRenderer/hooks";
 
 export interface LineChartWidget extends WidgetBase {
   type: "line-chart";
