@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, CircularProgress } from "@mui/material";
+import { Button } from "@mui/material";
 
 import { useDIDependency } from "@/container";
 
@@ -56,16 +56,13 @@ export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
     }, [context, executor, widget.action]);
 
     return (
-      <Box sx={sx}>
-        <Button
-          variant={filled ? "contained" : "outlined"}
-          disabled={working}
-          onClick={onClick}
-        >
-          {value}
-        </Button>
-        {working && <CircularProgress size={24} sx={{ ml: 2 }} />}
-      </Box>
+      <Button
+        variant={filled ? "contained" : "outlined"}
+        disabled={working}
+        onClick={onClick}
+      >
+        {value}
+      </Button>
     );
   },
 };

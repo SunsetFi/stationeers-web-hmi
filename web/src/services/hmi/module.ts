@@ -9,11 +9,11 @@ import { HmiScreenRepository } from "./screens/ScreenRepository";
 
 import { HmiContext } from "./HmiContext";
 import { HmiConnectedDevicesSource } from "./HmiConnectedDeviceSource";
-import { SetLogicValueActionDef } from "./actions/defs/SetLogicValueActionDef";
+import { WriteLogicValueHmiActionDef } from "./actions/defs/WriteLogicValueHmiActionDef";
 
 export default new ContainerModule((bind) => {
   bind(HmiActionExecutor);
-  bind(SetLogicValueActionDef);
+  bind(WriteLogicValueHmiActionDef);
 
   bind(BulkDeviceFormulaObservationSource);
   bind(DeviceFormulaObservationSource);

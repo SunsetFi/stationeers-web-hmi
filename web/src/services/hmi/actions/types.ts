@@ -1,4 +1,7 @@
-export interface HmiAction {
+import { WriteLogicValueHmiAction } from "./defs/WriteLogicValueHmiActionDef";
+
+export interface HmiActionBase {
   type: string;
-  parameters: Record<string, string>;
 }
+
+export type HmiAction = WriteLogicValueHmiAction;
