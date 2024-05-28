@@ -21,7 +21,7 @@ export interface ButtonWidget extends WidgetBase {
   type: "button";
   text: string;
   fontSize?: number;
-  filled?: boolean | string;
+  fill?: boolean | string;
   action?: HmiAction;
 }
 
@@ -38,7 +38,7 @@ export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
       sx.fontSize = widget.fontSize;
     }
 
-    const filled = useHmiScreenFormulaObservation(widget.filled ?? false);
+    const filled = useHmiScreenFormulaObservation(widget.fill ?? false);
 
     const value = useHmiScreenTemplateStringObservation(widget.text);
 
