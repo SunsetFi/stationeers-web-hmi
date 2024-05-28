@@ -2,6 +2,7 @@ import { ButtonWidgetDef } from "./Button";
 import { GaugeWidgetDef } from "./Gauge";
 import { IconWidgetDef } from "./Icon";
 import { LineChartWidgetDef } from "./LineChart";
+import { SelectWidgetDef } from "./Selector";
 import { StackWidgetDef } from "./Stack";
 import { TextWidgetDef } from "./Text";
 
@@ -12,4 +13,5 @@ export const WidgetDefs = {
   stack: StackWidgetDef,
   text: TextWidgetDef,
   button: ButtonWidgetDef,
+  selector: SelectWidgetDef,
 };

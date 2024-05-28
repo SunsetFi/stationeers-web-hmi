@@ -159,7 +159,6 @@ export class QueryingDeviceModel implements DeviceModel {
   }
 
   private async _resolveDevice() {
-    console.log("Resolving device");
     if (this._scheduledResolve) {
       clearTimeout(this._scheduledResolve);
       this._scheduledResolve = null;

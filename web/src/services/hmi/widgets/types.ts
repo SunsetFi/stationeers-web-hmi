@@ -2,6 +2,7 @@ import { ButtonWidget } from "./defs/Button";
 import { GaugeWidget } from "./defs/Gauge";
 import { IconWidget } from "./defs/Icon";
 import { LineChartWidget } from "./defs/LineChart";
+import { SelectorWidget } from "./defs/Selector";
 import { StackWidget } from "./defs/Stack";
 import { TextWidget } from "./defs/Text";
 
@@ -19,5 +20,6 @@ export type Widget =
   | IconWidget
   | LineChartWidget
   | GaugeWidget
-  | ButtonWidget;
+  | ButtonWidget
+  | SelectorWidget;
 export type WidgetType = Widget["type"];
