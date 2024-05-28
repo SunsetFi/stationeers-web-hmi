@@ -1,4 +1,7 @@
 import React from "react";
+import { SxProps, Typography } from "@mui/material";
+
+import Center from "@/components/Center";
 
 import { useDIDependency } from "@/container";
 
@@ -12,7 +15,6 @@ import { HmiScreenContext } from "@/services/hmi/screens/HmiScreenContext";
 import { WidgetRenderer } from "@/services/hmi/widgets";
 
 import { HmiScreenContextProvider } from "./react-context";
-import { SxProps } from "@mui/material";
 
 export interface HmiScreenRendererProps {
   sx?: SxProps;
@@ -33,6 +35,15 @@ const HmiScreenRenderer: React.FC<HmiScreenRendererProps> = ({
   screen,
 }) => {
   const context = useHmiScreenContext(screen);
+
+  if (screen.error) {
+    return (
+      <Center>
+        <Typography variant="h4">Error</Typography>
+        {screen.error}
+      </Center>
+    );
+  }
 
   return (
     <HmiScreenContextProvider context={context}>

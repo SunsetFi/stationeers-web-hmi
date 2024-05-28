@@ -14,15 +14,15 @@ import { Widget } from "../widgets";
 import { HmiScreen } from "./types";
 
 export class HmiScreenContext implements FormulaContext {
-  private _dataSources = new Map<string, Observable<any>>();
+  private _definitions = new Map<string, Observable<any>>();
 
   constructor(
     private readonly _screen: HmiScreen,
     private readonly _devicesSource: DevicesSource,
     private readonly _formulaCompiler: FormulaCompiler
   ) {
-    for (const [key, value] of Object.entries(this._screen.dataSources || {})) {
-      this._dataSources.set(key, this._formulaCompiler.compileFormula(value));
+    for (const [key, value] of Object.entries(this._screen.definitions || {})) {
+      this._definitions.set(key, this._formulaCompiler.compileFormula(value));
     }
   }
 
@@ -39,7 +39,7 @@ export class HmiScreenContext implements FormulaContext {
     compile: (node: math.MathNode) => Observable<any>
   ): Observable<any> | null {
     if (math.isSymbolNode(node)) {
-      const dataSource = this._dataSources.get(node.name);
+      const dataSource = this._definitions.get(node.name);
       if (dataSource) {
         return dataSource;
       }

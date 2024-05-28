@@ -1,4 +1,5 @@
 
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -45,8 +46,19 @@ public class HmiController
         var configs = new JArray();
         foreach (var file in Directory.GetFiles(path))
         {
-            var config = JObject.Parse(File.ReadAllText(file));
+            JObject config;
+            try
+            {
+                config = JObject.Parse(File.ReadAllText(file));
+            }
+            catch (Exception ex)
+            {
+                config = new JObject();
+                config["error"] = ex.Message;
+            }
+
             config["id"] = Path.GetFileNameWithoutExtension(file);
+
             configs.Add(config);
         }
 

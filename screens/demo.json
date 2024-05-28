@@ -1,0 +1,113 @@
+{
+  "title": "Demo Screen",
+  "definitions": {
+    "gasSensor": "device('Gas Sensor')",
+    "batteries": "devicesByPrefab('StructureBatteryLarge')"
+  },
+  "root": {
+    "type": "stack",
+    "direction": "column",
+    "children": [
+      {
+        "type": "text",
+        "text": "Atmosphere",
+        "marginLeft": "auto",
+        "marginRight": "auto"
+      },
+      {
+        "type": "stack",
+        "direction": "row",
+        "justifyChildren": "center",
+        "children": [
+          {
+            "type": "icon",
+            "icon": "Thermostat"
+          },
+          {
+            "type": "text",
+            "text": "${round(readLogicValue(gasSensor, 'Temperature') kelvin to degF, 1, degF)}° F",
+            "marginRight": 4
+          },
+          {
+            "type": "icon",
+            "icon": "Compress"
+          },
+          {
+            "type": "text",
+            "text": "${round(readLogicValue(gasSensor, 'Pressure') KPa, 2, KPa)} kPa"
+          }
+        ]
+      },
+      {
+        "type": "line-chart",
+        "series": [
+          {
+            "valueFormula": "readLogicValue(gasSensor, 'Temperature') kelvin to degF",
+            "title": "Temperature"
+          },
+          {
+            "valueFormula": "readLogicValue(gasSensor, 'Pressure')",
+            "title": "Pressure"
+          }
+        ]
+      },
+      {
+        "type": "text",
+        "text": "Power",
+        "marginLeft": "auto",
+        "marginRight": "auto"
+      },
+      {
+        "type": "stack",
+        "direction": "row",
+        "justifyChildren": "center",
+        "children": [
+          {
+            "type": "text",
+            "text": "Charge"
+          },
+          {
+            "type": "gauge",
+            "min": 0,
+            "max": 100,
+            "labelFormula": "${round(sum(readLogicValue(batteries, 'Charge')) / sum(readLogicValue(batteries, 'Maximum')) * 100, 0)}%",
+            "valueFormula": "sum(readLogicValue(batteries, 'Charge')) / sum(readLogicValue(batteries, 'Maximum')) * 100",
+            "marginRight": 4
+          },
+          {
+            "type": "text",
+            "text": "Usage"
+          },
+          {
+            "type": "gauge",
+            "min": 0,
+            "max": 5000,
+            "labelFormula": "${round(sum(readLogicValue(batteries, 'PowerActual')), 0)} w",
+            "valueFormula": "round(sum(readLogicValue(batteries, 'PowerActual')), 0)"
+          }
+        ]
+      },
+      {
+        "type": "line-chart",
+        "series": [
+          {
+            "valueFormula": "sum(readLogicValue(batteries, 'Charge')) w to kw",
+            "title": "Stored Power (kw)",
+            "axis": {
+              "min": 0,
+              "max": "sum(readLogicValue(batteries, 'Maximum')) w to kw"
+            }
+          },
+          {
+            "valueFormula": "sum(readLogicValue(batteries, 'PowerActual'))",
+            "title": "Usage (w)",
+            "axis": {
+              "min": 0,
+              "max": 100000
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

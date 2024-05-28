@@ -1,0 +1,21 @@
+{
+  "title": "Test",
+  "root": {
+    "type": "stack",
+    "direction": "column",
+    "children": [
+      {
+        "type": "text",
+        "text": "Hello, World!"
+      },
+      {
+        "type": "text",
+        "text": "Device 'foo' exists: ${device('foo').exists}"
+      },
+      {
+        "type": "text",
+        "text": "Array Addition test ${sum([1, 2, 3])}"
+      }
+    ]
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "title": "Large Battery Status",
+  "definitions": {
+    "batteries": "devicesByPrefab('StructureBatteryLarge')"
+  },
+  "root": {
+    "type": "stack",
+    "direction": "column",
+    "children": [
+      {
+        "type": "text",
+        "text": "Large Battery Status"
+      },
+      {
+        "type": "line-chart",
+        "series": [
+          {
+            "valueFormula": "sum(readLogicValue(batteries, 'Charge')) w to kw",
+            "title": "Stored Power (kw)",
+            "axis": {
+              "min": 0,
+              "max": "sum(readLogicValue(batteries, 'Maximum')) w to kw"
+            }
+          },
+          {
+            "valueFormula": "sum(readLogicValue(batteries, 'PowerActual'))",
+            "title": "Usage (w)",
+            "axis": {
+              "min": 0,
+              "max": 100000
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
