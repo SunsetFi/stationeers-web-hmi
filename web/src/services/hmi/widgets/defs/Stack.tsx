@@ -3,7 +3,8 @@ import { Box } from "@mui/material";
 
 import WidgetRenderer from "../WidgetRenderer";
 
-import { Widget, WidgetBase, commonWidgetStyleToSx } from "../types";
+import { commonWidgetStyleToSx } from "../style";
+import { Widget, WidgetBase } from "../types";
 
 import { WidgetDef } from "./types";
 

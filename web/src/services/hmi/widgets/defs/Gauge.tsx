@@ -6,7 +6,8 @@ import {
   useHmiScreenTemplateStringObservation,
 } from "../../screens/HmiScreenRenderer/hooks";
 
-import { WidgetBase, commonWidgetStyleToSx } from "../types";
+import { commonWidgetStyleToSx } from "../style";
+import { WidgetBase } from "../types";
 
 import { WidgetDef } from "./types";
 

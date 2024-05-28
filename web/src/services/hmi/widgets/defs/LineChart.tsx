@@ -15,7 +15,8 @@ import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
 import { useComponentBounds } from "@/hooks/use-component-bounds";
 
 import { useHmiScreenContext } from "../../screens/HmiScreenRenderer/hooks";
-import { WidgetBase, commonWidgetStyleToSx } from "../types";
+import { WidgetBase } from "../types";
+import { commonWidgetStyleToSx } from "../style";
 
 import { WidgetDef } from "./types";
 

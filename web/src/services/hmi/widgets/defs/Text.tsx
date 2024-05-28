@@ -3,7 +3,8 @@ import { Typography } from "@mui/material";
 
 import { useHmiScreenTemplateStringObservation } from "../../screens/HmiScreenRenderer/hooks";
 
-import { WidgetBase, commonWidgetStyleToSx } from "../types";
+import { WidgetBase } from "../types";
+import { commonWidgetStyleToSx } from "../style";
 
 import { WidgetDef } from "./types";
 
