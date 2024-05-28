@@ -114,7 +114,13 @@ export class FormulaCompiler {
     expression: string,
     context: FormulaContext = NullFormulaContext
   ): Observable<any> {
-    const parsed = this._limitedParse(expression);
+    let parsed: math.MathNode;
+    try {
+      parsed = this._limitedParse(expression);
+    } catch (e: any) {
+      e.message = `Error parsing formula \"${expression}\": ${e.message}`;
+      throw e;
+    }
 
     return this._compileParsedFormula(parsed, context).pipe(
       map((value) => {

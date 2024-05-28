@@ -40,4 +40,21 @@ export class StationeersApi {
     const body = await req.json();
     return body;
   }
+
+  async setLogicValue(referenceId: string, logicValue: string, value: number) {
+    const req = await fetch(
+      `${this._url}/api/devices/${referenceId}/logic/${logicValue}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ value }),
+      }
+    );
+
+    if (req.status !== 200) {
+      throw new ApiError(req.status, req.statusText);
+    }
+  }
 }

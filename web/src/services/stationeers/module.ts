@@ -1,6 +1,6 @@
 import { ContainerModule } from "microinject";
 
-import { ReadLogicValueFormulaObservationSource } from "./formula-sources/ReadLogicValueFormulaObservationSource";
+import { ReadLogicValueFormulaObservationSource } from "./devices/formula-sources/ReadLogicValueFormulaObservationSource";
 
 import { StationeersApi } from "./StationeersApi";
 import {

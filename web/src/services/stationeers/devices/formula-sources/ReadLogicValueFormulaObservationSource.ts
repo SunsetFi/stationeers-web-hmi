@@ -3,8 +3,8 @@ import { Observable, switchMap, combineLatest, map } from "rxjs";
 
 import { FormulaObservationSource } from "@/services/formula/FormulaObservationSource";
 
-import { DeviceModel } from "../devices/DeviceModel";
-import { DeviceFormulaObject } from "../devices/DeviceFormulaObject";
+import { DeviceModel } from "../DeviceModel";
+import { DeviceFormulaObject } from "../DeviceFormulaObject";
 
 @injectable()
 @singleton()
