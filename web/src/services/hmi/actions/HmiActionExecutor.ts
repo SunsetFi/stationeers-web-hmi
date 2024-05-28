@@ -28,7 +28,7 @@ export class HmiActionExecutor {
     const parameterPromises = mapValues(action.parameters, (arg) =>
       // If these dont get a value from the observable, this observable stays subscribed forever...
       // Shouldn't be too big of an issue?
-      firstValueFrom(this._formulaCompiler.compileFormula(arg, context))
+      firstValueFrom(this._formulaCompiler.compileTemplateString(arg, context))
     );
 
     const parameters = await awaitValues(parameterPromises);

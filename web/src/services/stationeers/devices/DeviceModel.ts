@@ -17,4 +17,7 @@ export interface DeviceModel {
   // TODO: Support observation of properties in FormulaCompiler.
   // This is here as a hack for DeviceFormulaObservationSource.
   readonly data$: Observable<DeviceApiObject>;
+
+  writeLogicValue(key: string, value: number): Promise<void>;
+  awaitNextUpdate(): Promise<void>;
 }

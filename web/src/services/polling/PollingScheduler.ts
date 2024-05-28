@@ -22,6 +22,8 @@ export class PollingScheduler implements Initializable {
       const index = this._tasks.indexOf(task);
       if (index >= 0) {
         this._tasks.splice(index, 1);
+      } else {
+        console.warn("Task not found to remove", name);
       }
     };
   }

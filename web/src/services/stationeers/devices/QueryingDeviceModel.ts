@@ -61,6 +61,10 @@ export class QueryingDeviceModel implements DeviceModel {
     );
   }
 
+  get _observed() {
+    return this._resolved$.observed;
+  }
+
   get exists(): boolean {
     return this._resolved$.value.exists;
   }
@@ -71,7 +75,7 @@ export class QueryingDeviceModel implements DeviceModel {
       this._exists$ = this._resolved$.pipe(
         switchMap((value) => value.exists$),
         distinctUntilChanged(),
-        shareReplay(1)
+        shareReplay({ refCount: true, bufferSize: 1 })
       );
     }
 
@@ -92,7 +96,7 @@ export class QueryingDeviceModel implements DeviceModel {
       this._displayName$ = this._resolved$.pipe(
         switchMap((value) => value.displayName$),
         distinctUntilChanged(),
-        shareReplay(1)
+        shareReplay({ refCount: true, bufferSize: 1 })
       );
     }
 
@@ -109,7 +113,7 @@ export class QueryingDeviceModel implements DeviceModel {
       this._logicValues$ = this._resolved$.pipe(
         switchMap((value) => value.logicValues$),
         distinctUntilChanged(isEqual),
-        shareReplay(1)
+        shareReplay({ refCount: true, bufferSize: 1 })
       );
     }
 
@@ -121,11 +125,19 @@ export class QueryingDeviceModel implements DeviceModel {
     if (!this._data$) {
       this._data$ = this._resolved$.pipe(
         switchMap((value) => value.data$),
-        shareReplay(1)
+        shareReplay({ refCount: true, bufferSize: 1 })
       );
     }
 
     return this._data$;
+  }
+
+  writeLogicValue(key: string, value: number): Promise<void> {
+    return this._resolved$.value.writeLogicValue(key, value);
+  }
+
+  awaitNextUpdate() {
+    return this._resolved$.value.awaitNextUpdate();
   }
 
   _awaitInitialResolve(): Promise<void> {
@@ -147,6 +159,7 @@ export class QueryingDeviceModel implements DeviceModel {
   }
 
   private async _resolveDevice() {
+    console.log("Resolving device");
     if (this._scheduledResolve) {
       clearTimeout(this._scheduledResolve);
       this._scheduledResolve = null;

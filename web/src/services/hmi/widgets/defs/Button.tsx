@@ -1,5 +1,5 @@
 import React from "react";
-import { Button } from "@mui/material";
+import { Box, Button, CircularProgress } from "@mui/material";
 
 import { useDIDependency } from "@/container";
 
@@ -8,8 +8,8 @@ import {
   useHmiScreenFormulaObservation,
   useHmiScreenTemplateStringObservation,
 } from "../../screens/HmiScreenRenderer/hooks";
-import { HmiActionExecutor } from "../../actions/HmiActionExecutor";
 
+import { HmiActionExecutor } from "../../actions/HmiActionExecutor";
 import { HmiAction } from "../../actions/types";
 
 import { WidgetBase } from "../types";
@@ -56,14 +56,16 @@ export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
     }, [context, executor, widget.action]);
 
     return (
-      <Button
-        sx={sx}
-        variant={filled ? "contained" : "outlined"}
-        disabled={working}
-        onClick={onClick}
-      >
-        {value}
-      </Button>
+      <Box sx={sx}>
+        <Button
+          variant={filled ? "contained" : "outlined"}
+          disabled={working}
+          onClick={onClick}
+        >
+          {value}
+        </Button>
+        {working && <CircularProgress size={24} sx={{ ml: 2 }} />}
+      </Box>
     );
   },
 };

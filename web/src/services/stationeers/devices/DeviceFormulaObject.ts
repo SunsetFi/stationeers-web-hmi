@@ -1,11 +1,13 @@
 import { Observable, combineLatest, map } from "rxjs";
-import { omit } from "lodash";
 
 import { DeviceApiObject } from "../api-types";
 
 import { DeviceModel } from "./DeviceModel";
 
-export type DeviceFormulaObject = Omit<DeviceModel, "logicValues"> &
+export type DeviceFormulaObject = Omit<
+  DeviceModel,
+  "logicValues" | "writeLogicValue" | "awaitNextUpdate"
+> &
   Omit<DeviceApiObject, "logicValues" | "logicSlotValues" | "slotReferenceIds">;
 
 // While MathJS has had a TODO to add support for reading class properties since forever, they have still not gotten to it.
@@ -14,22 +16,13 @@ export type DeviceFormulaObject = Omit<DeviceModel, "logicValues"> &
 export function modelToDeviceFormulaObject(
   device: DeviceModel
 ): Observable<DeviceFormulaObject> {
-  return combineLatest([
-    device.data$.pipe(
-      map((data) =>
-        omit(data, ["logicValues", "logicSlotValues", "slotReferenceIds"])
-      )
-    ),
-    device.exists$,
-  ]).pipe(
+  return combineLatest([device.data$, device.exists$]).pipe(
     map(
       ([data, exists]) =>
         ({
           exists,
-          exists$: device.exists$,
-          displayName$: device.displayName$,
-          logicValues$: device.logicValues$,
-          data$: device.data$,
+
+          // data we can use directly in the formula through property access
           referenceId: data.referenceId,
           prefabHash: data.prefabHash,
           prefabName: data.prefabName,
@@ -38,6 +31,12 @@ export function modelToDeviceFormulaObject(
           accessState: data.accessState,
           displayName: data.displayName,
           dataNetworkId: data.dataNetworkId,
+
+          // carry-through observables for the observation based functions to use.
+          exists$: device.exists$,
+          displayName$: device.displayName$,
+          logicValues$: device.logicValues$,
+          data$: device.data$,
         }) satisfies DeviceFormulaObject
     )
   );

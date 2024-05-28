@@ -54,4 +54,12 @@ export class NullDeviceModel implements DeviceModel {
   get data$(): Observable<DeviceApiObject> {
     return this._data$;
   }
+
+  writeLogicValue(key: string, value: number): Promise<void> {
+    return Promise.reject(new Error("Device Not Found"));
+  }
+
+  awaitNextUpdate(): Promise<void> {
+    return Promise.resolve();
+  }
 }

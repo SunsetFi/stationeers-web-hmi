@@ -1,10 +1,11 @@
 import { inject, injectable, provides, singleton } from "microinject";
 
-import { StationeersApi } from "@/services/stationeers/StationeersApi";
 import { DeviceModel } from "@/services/stationeers/devices/DeviceModel";
 import { DeviceFormulaObject } from "@/services/stationeers/devices/DeviceFormulaObject";
 
 import { HmiScreenContext } from "../../screens/HmiScreenContext";
+
+import { HmiConnectedDevicesSource } from "../../HmiConnectedDeviceSource";
 
 import { HmiActionDef } from "./HmiActionDef";
 
@@ -12,7 +13,10 @@ import { HmiActionDef } from "./HmiActionDef";
 @singleton()
 @provides(HmiActionDef)
 export class SetLogicValueActionDef implements HmiActionDef {
-  constructor(@inject(StationeersApi) private stationeersApi: StationeersApi) {}
+  constructor(
+    @inject(HmiConnectedDevicesSource)
+    private readonly _connectedDevices: HmiConnectedDevicesSource
+  ) {}
 
   get type() {
     return "writeLogicValue";
@@ -38,29 +42,28 @@ export class SetLogicValueActionDef implements HmiActionDef {
       throw new Error("logicValue parameter is required");
     }
 
-    const value = args["value"];
-    if (value === undefined) {
+    const valueArg = args["value"];
+    if (valueArg === undefined) {
       throw new Error("value parameter is required");
     }
 
-    if (typeof value !== "number") {
+    const value = Number(valueArg);
+
+    if (Number.isNaN(value)) {
       throw new Error("value parameter must be a number");
     }
 
-    if (Number.isNaN(value)) {
-      return;
-    }
+    // Resolve them just so we can call awaitNextUpdate
+    const resolvedDevices = await Promise.all(
+      devices.map((device) =>
+        this._connectedDevices.getDeviceById(device.referenceId)
+      )
+    );
 
     await Promise.all(
-      devices
+      resolvedDevices
         .filter((device) => device.exists)
-        .map((device) =>
-          this.stationeersApi.setLogicValue(
-            device.referenceId,
-            String(logicValue),
-            Number(value)
-          )
-        )
+        .map((device) => device.writeLogicValue(logicValue, value))
     );
   }
 }

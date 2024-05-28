@@ -107,18 +107,22 @@ export class QueryingDevicesSource implements DevicesSource {
   }
 
   private async _updateDevices() {
-    const existingDeviceIds = Array.from(this._apiObjectDeviceModels.keys());
+    // Only query devices that are being observed.
+    // Note that this could let static properties go stale.
+    const observedDeviceIds = Array.from(this._apiObjectDeviceModels.values())
+      .filter((x) => x._observed)
+      .map((x) => x.referenceId);
 
-    if (existingDeviceIds.length === 0) {
+    if (observedDeviceIds.length === 0) {
       return;
     }
 
     const devices = await this._api.queryDevices({
-      referenceIds: existingDeviceIds,
+      referenceIds: observedDeviceIds,
     });
 
     const foundIds = devices.map((t) => t.referenceId);
-    const referenceIdsToRemove = difference(existingDeviceIds, foundIds);
+    const referenceIdsToRemove = difference(observedDeviceIds, foundIds);
 
     // Perform observable changing actions in a transaction to avoid flooding react with rerenders.
     startTransition(() => {
@@ -137,7 +141,7 @@ export class QueryingDevicesSource implements DevicesSource {
   private _getOrUpdateDeviceModel(device: DeviceApiObject): DeviceModel {
     let model: ApiObjectDeviceModel;
     if (!this._apiObjectDeviceModels.has(device.referenceId)) {
-      model = new ApiObjectDeviceModel(device);
+      model = new ApiObjectDeviceModel(device, this._api);
       this._apiObjectDeviceModels.set(device.referenceId, model);
     } else {
       model = this._apiObjectDeviceModels.get(device.referenceId)!;
