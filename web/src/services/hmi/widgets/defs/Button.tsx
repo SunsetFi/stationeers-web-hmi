@@ -22,7 +22,7 @@ export interface ButtonWidget extends WidgetBase {
   text: string;
   fontSize?: number;
   fill?: boolean | string;
-  action?: HmiAction;
+  action: HmiAction | HmiAction[];
 }
 
 export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
@@ -47,8 +47,13 @@ export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
     const onClick = React.useCallback(async () => {
       if (widget.action) {
         setWorking(true);
+        const actions = Array.isArray(widget.action)
+          ? widget.action
+          : [widget.action];
         try {
-          await executor.executeAction(context, widget.action);
+          await Promise.all(
+            actions.map((a) => executor.executeAction(context, a))
+          );
         } finally {
           setWorking(false);
         }
@@ -57,6 +62,7 @@ export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
 
     return (
       <Button
+        sx={sx}
         variant={filled ? "contained" : "outlined"}
         disabled={working}
         onClick={onClick}
