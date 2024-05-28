@@ -8,6 +8,7 @@ export interface ButtonLinkProps {
   size?: ButtonProps["size"];
   title?: string;
   color?: ButtonProps["color"];
+  variant?: ButtonProps["variant"];
   to: string;
   disabled?: boolean;
   children: React.ReactNode;
@@ -18,6 +19,7 @@ const ButtonLink = ({
   size,
   title,
   color,
+  variant,
   to,
   disabled,
   children,
@@ -45,6 +47,7 @@ const ButtonLink = ({
       size={size}
       title={title}
       color={color}
+      variant={variant}
       component="a"
       href={href}
       disabled={disabled}

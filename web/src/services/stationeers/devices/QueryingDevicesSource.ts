@@ -168,7 +168,6 @@ class DevicePrefabObservable extends Observable<DeviceModel[]> {
     this._globalQuery.subscribe((q) => (query = q));
 
     this._pollingScheduler.addTask(async () => {
-      console.log("ByPrefab", this._prefabName, query);
       let devices: DeviceApiObject[];
       try {
         devices = await this._api.queryDevices(
@@ -178,15 +177,12 @@ class DevicePrefabObservable extends Observable<DeviceModel[]> {
           })
         );
       } catch (e) {
-        console.log("ByPrefab error", this._prefabName, e);
         this._subject$.error(e);
         return;
       }
 
       devices = sortBy(devices, (d) => d.referenceId);
       let models = devices.map((d) => this._resolveDeviceModel(d));
-
-      console.log("ByPRefab got models", this._prefabName, models);
 
       // We could use a BehaviorSubject here, but we want to avoid emitting an empty array at the start.
       if (
@@ -195,7 +191,6 @@ class DevicePrefabObservable extends Observable<DeviceModel[]> {
       ) {
         this._previousModels = models;
         this._subject$.next(models);
-        console.log("ByPRefab update models", this._prefabName, models);
       }
     }, `ByPrefab ${this._prefabName}`);
   }

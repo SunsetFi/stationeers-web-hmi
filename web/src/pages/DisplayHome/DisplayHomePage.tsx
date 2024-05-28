@@ -33,7 +33,9 @@ const DisplayHomePage: React.FC = () => {
   } else {
     content = (
       <Stack alignItems="center">
-        <Typography variant="h2">{display.displayName}</Typography>
+        <Typography variant="h2" sx={{ mb: 4 }}>
+          {display.displayName}
+        </Typography>
         <DisplayLoadedContent display={display} />
       </Stack>
     );
@@ -63,9 +65,14 @@ const DisplayLoadedContent: React.FC<{ display: DeviceApiObject }> = ({
 
   return (
     <Stack direction="column" spacing={2}>
-      {screens.map(({ title, id }) => (
-        <ButtonLink key={id} to={`hmi-screens/${id}`}>
-          {title}
+      {screens.map(({ title, id, error }) => (
+        <ButtonLink
+          key={id}
+          to={`hmi-screens/${id}`}
+          variant="outlined"
+          color={error != null ? "error" : undefined}
+        >
+          {title ?? id}
         </ButtonLink>
       ))}
     </Stack>

@@ -138,7 +138,9 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
       setMuiSeries(
         series.map(({ title }, i) => ({
           label: title,
-          data: new Array(sampleCount).fill(null),
+          // Note: I'm not sure why we need the +1 here to log 61 items instead of 60, but without this, we were getting
+          // a gap at the start or end of the graph.  See note on x axis.
+          data: new Array(sampleCount + 1).fill(null),
           yAxisKey: String(i),
         }))
       );
@@ -165,7 +167,9 @@ export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
           xAxis={[
             {
               tickNumber: 4,
-              data: new Array(sampleCount).fill(null).map((_, i) => i + 1),
+              // Note: I'm not sure why we need the +1 here to log 61 items instead of 60, but without this, we were getting
+              // a gap at the start or end of the graph.  See note on series data.
+              data: new Array(sampleCount + 1).fill(null).map((_, i) => i),
               valueFormatter: (value) =>
                 `${sampleRate * (sampleCount - value)}s`,
             },
