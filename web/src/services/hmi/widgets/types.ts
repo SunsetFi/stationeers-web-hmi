@@ -1,5 +1,6 @@
 import { ButtonWidget } from "./defs/Button";
 import { GaugeWidget } from "./defs/Gauge";
+import { HmiScreenWidget } from "./defs/HmiScreen";
 import { IconWidget } from "./defs/Icon";
 import { LineChartWidget } from "./defs/LineChart";
 import { SelectorWidget } from "./defs/Selector";
@@ -21,5 +22,6 @@ export type Widget =
   | LineChartWidget
   | GaugeWidget
   | ButtonWidget
-  | SelectorWidget;
+  | SelectorWidget
+  | HmiScreenWidget;
 export type WidgetType = Widget["type"];

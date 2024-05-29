@@ -1,9 +1,10 @@
 import React from "react";
-import { Box, SxProps } from "@mui/material";
+
+import { SxProps } from "@mui/material";
+import { ComponentPropsOf } from "@/types";
 
 import { WidgetDefs } from "./defs";
 import { Widget } from "./types";
-import { ComponentPropsOf } from "@/types";
 
 export interface WidgetRendererProps {
   widget: Widget;
@@ -18,17 +19,7 @@ const WidgetRenderer: React.FC<WidgetRendererProps> = ({ widget, sx }) => {
 
   const props: ComponentPropsOf<typeof Component> = { widget: widget as any };
 
-  return <Component {...(props as any)} />;
-
-  // return (
-  //   <Box sx={sx}>
-  //     {/*
-  //     Need to mask the type here as typescript cannot reconcile the multiple options
-  //     of Component widget with the multiple options of props.widget
-  //     */}
-  //     <Component {...(props as any)} />
-  //   </Box>
-  // );
+  return <Component sx={sx} {...(props as any)} />;
 };
 
 export default WidgetRenderer;

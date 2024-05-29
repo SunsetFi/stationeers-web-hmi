@@ -17,8 +17,9 @@ export interface StackWidget extends WidgetBase {
 }
 
 export const StackWidgetDef: WidgetDef<StackWidget> = {
-  Component: ({ widget }: { widget: StackWidget }) => {
+  Component: ({ sx: inheritSx, widget }) => {
     const sx: any = {
+      ...inheritSx,
       ...commonWidgetStyleToSx(widget),
       gap: widget.gap,
       display: "flex",

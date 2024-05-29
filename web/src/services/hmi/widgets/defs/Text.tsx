@@ -15,8 +15,9 @@ export interface TextWidget extends WidgetBase {
 }
 
 export const TextWidgetDef: WidgetDef<TextWidget> = {
-  Component: ({ widget }: { widget: TextWidget }) => {
+  Component: ({ sx: inheritSx, widget }) => {
     const sx: any = {
+      ...inheritSx,
       alignSelf: "center",
       m: 1,
       ...commonWidgetStyleToSx(widget),

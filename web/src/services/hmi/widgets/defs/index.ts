@@ -1,5 +1,6 @@
 import { ButtonWidgetDef } from "./Button";
 import { GaugeWidgetDef } from "./Gauge";
+import { HmiScreenWidgetDef } from "./HmiScreen";
 import { IconWidgetDef } from "./Icon";
 import { LineChartWidgetDef } from "./LineChart";
 import { SelectWidgetDef } from "./Selector";
@@ -14,4 +15,5 @@ export const WidgetDefs = {
   text: TextWidgetDef,
   button: ButtonWidgetDef,
   selector: SelectWidgetDef,
+  "hmi-screen": HmiScreenWidgetDef,
 };

@@ -38,12 +38,13 @@ export interface LineChartSeries {
 }
 
 export const LineChartWidgetDef: WidgetDef<LineChartWidget> = {
-  Component: ({ widget }: { widget: LineChartWidget }) => {
+  Component: ({ sx: inheritSx, widget }) => {
     const { series, sampleCount = 60, sampleRate = 1 } = widget;
 
     const hmiContext = useHmiScreenContext();
 
     const sx: any = {
+      ...inheritSx,
       width: "100%",
       height: "100%",
       flex: "1",

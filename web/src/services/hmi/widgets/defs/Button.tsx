@@ -26,10 +26,11 @@ export interface ButtonWidget extends WidgetBase {
 }
 
 export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
-  Component: ({ widget }: { widget: ButtonWidget }) => {
+  Component: ({ sx: inheritSx, widget }) => {
     const [working, setWorking] = React.useState(false);
 
     const sx: any = {
+      ...inheritSx,
       alignSelf: "center",
       m: 2,
       ...commonWidgetStyleToSx(widget),

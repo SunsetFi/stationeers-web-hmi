@@ -38,10 +38,11 @@ export interface SelectWidgetItem {
 }
 
 export const SelectWidgetDef: WidgetDef<SelectorWidget> = {
-  Component: ({ widget }: { widget: SelectorWidget }) => {
+  Component: ({ sx: inheritSx, widget }) => {
     const context = useHmiScreenContext();
 
     const sx: any = {
+      ...inheritSx,
       alignSelf: "center",
       minWidth: widget.width ?? 150,
       m: 2,

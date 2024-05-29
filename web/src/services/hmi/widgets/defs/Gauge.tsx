@@ -20,8 +20,9 @@ export interface GaugeWidget extends WidgetBase {
 }
 
 export const GaugeWidgetDef: WidgetDef<GaugeWidget> = {
-  Component: ({ widget }: { widget: GaugeWidget }) => {
+  Component: ({ sx: inheritSx, widget }) => {
     const sx: any = {
+      ...inheritSx,
       width: "100px",
       height: "100px",
       flexGrow: 0,

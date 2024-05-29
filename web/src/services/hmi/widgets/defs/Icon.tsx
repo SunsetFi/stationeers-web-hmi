@@ -12,12 +12,14 @@ export interface IconWidget extends WidgetBase {
 }
 
 export const IconWidgetDef: WidgetDef<IconWidget> = {
-  Component: ({ widget }: { widget: IconWidget }) => {
+  Component: ({ sx: inheritSx, widget }) => {
     const Icon = Icons[widget.icon];
     if (!Icon) {
       return null;
     }
 
-    return <Icon sx={{ alignSelf: "center", fontSize: "64px" }} />;
+    return (
+      <Icon sx={{ ...inheritSx, alignSelf: "center", fontSize: "64px" }} />
+    );
   },
 };
