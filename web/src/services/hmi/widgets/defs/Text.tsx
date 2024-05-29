@@ -18,6 +18,7 @@ export const TextWidgetDef: WidgetDef<TextWidget> = {
   Component: ({ widget }: { widget: TextWidget }) => {
     const sx: any = {
       alignSelf: "center",
+      m: 1,
       ...commonWidgetStyleToSx(widget),
     };
 

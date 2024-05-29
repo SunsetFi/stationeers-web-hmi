@@ -31,6 +31,7 @@ export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
 
     const sx: any = {
       alignSelf: "center",
+      m: 2,
       ...commonWidgetStyleToSx(widget),
     };
 

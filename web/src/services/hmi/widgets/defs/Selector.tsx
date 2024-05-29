@@ -44,6 +44,7 @@ export const SelectWidgetDef: WidgetDef<SelectorWidget> = {
     const sx: any = {
       alignSelf: "center",
       minWidth: widget.width ?? 150,
+      m: 2,
       ...commonWidgetStyleToSx(widget),
     };
 

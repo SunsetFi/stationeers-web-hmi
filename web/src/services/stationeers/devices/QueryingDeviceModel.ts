@@ -200,22 +200,11 @@ export class QueryingDeviceModel implements DeviceModel {
 
     startTransition(() => {
       if (!resolvedData) {
-        console.log("Could not find device", this._currentQuery);
         this._clear();
         this._scheduleResolve();
       } else {
         const model = this._resolveDataDeviceModel(resolvedData);
-        console.log("Setting resolved next to", model);
         this._resolved$.next(model);
-
-        console.log(
-          "Resolved device",
-          resolvedData,
-          "to",
-          model,
-          ".  observable is",
-          this._resolved$.value
-        );
 
         if (this._onInitialResolve) {
           this._onInitialResolve();

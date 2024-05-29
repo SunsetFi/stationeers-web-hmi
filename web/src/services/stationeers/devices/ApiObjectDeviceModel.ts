@@ -97,7 +97,14 @@ export class ApiObjectDeviceModel implements DeviceModel {
     }
 
     await this._api.setLogicValue(this.referenceId, key, value);
-    await this.awaitNextUpdate();
+    // Optimistically set the value
+    this._update({
+      ...this._data$.value,
+      logicValues: {
+        ...this._data$.value.logicValues,
+        [key]: value,
+      },
+    });
   }
 
   awaitNextUpdate() {
