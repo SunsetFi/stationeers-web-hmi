@@ -8,5 +8,6 @@ export interface HmiScreen {
   error?: string;
   title: string;
   root: Widget;
+  variables?: Record<string, string | number | boolean | null>;
   definitions?: Record<string, string>;
 }

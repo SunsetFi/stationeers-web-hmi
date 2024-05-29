@@ -1,4 +1,4 @@
-import { Observable, map, switchMap } from "rxjs";
+import { BehaviorSubject, Observable, map, switchMap } from "rxjs";
 import * as math from "mathjs";
 
 import { observeAll } from "@/observables";
@@ -14,13 +14,20 @@ import { Widget } from "../widgets";
 import { HmiScreen } from "./types";
 
 export class HmiScreenContext implements FormulaContext {
-  private _definitions = new Map<string, Observable<any>>();
+  private readonly _variables = new Map<
+    string,
+    BehaviorSubject<string | number | boolean | null>
+  >();
+  private readonly _definitions = new Map<string, Observable<any>>();
 
   constructor(
     private readonly _screen: HmiScreen,
     private readonly _devicesSource: DevicesSource,
     private readonly _formulaCompiler: FormulaCompiler
   ) {
+    for (const [key, value] of Object.entries(this._screen.variables || {})) {
+      this._variables.set(key, new BehaviorSubject(value));
+    }
     for (const [key, value] of Object.entries(this._screen.definitions || {})) {
       this._definitions.set(key, this._formulaCompiler.compileFormula(value));
     }
@@ -34,12 +41,22 @@ export class HmiScreenContext implements FormulaContext {
     return this._screen.root;
   }
 
+  setVariable(name: string, value: string | number | boolean | null) {
+    const observable = this._variables.get(name);
+    if (!observable) {
+      throw new Error("Variable is not defined.");
+    }
+
+    observable.next(value);
+  }
+
   resolveObservation(
     node: math.FunctionNode | math.SymbolNode,
     compile: (node: math.MathNode) => Observable<any>
   ): Observable<any> | null {
     if (math.isSymbolNode(node)) {
-      const dataSource = this._definitions.get(node.name);
+      const dataSource =
+        this._definitions.get(node.name) ?? this._variables.get(node.name);
       if (dataSource) {
         return dataSource;
       }
