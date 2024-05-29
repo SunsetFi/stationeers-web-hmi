@@ -4,11 +4,18 @@ import { DeviceApiObject } from "../api-types";
 
 import { DeviceModel } from "./DeviceModel";
 
+const ModelSymbol = Symbol("DeviceModel");
+
 export type DeviceFormulaObject = Omit<
   DeviceModel,
   "logicValues" | "writeLogicValue" | "awaitNextUpdate"
 > &
-  Omit<DeviceApiObject, "logicValues" | "logicSlotValues" | "slotReferenceIds">;
+  Omit<
+    DeviceApiObject,
+    "logicValues" | "logicSlotValues" | "slotReferenceIds"
+  > & {
+    [ModelSymbol]: DeviceModel;
+  };
 
 // While MathJS has had a TODO to add support for reading class properties since forever, they have still not gotten to it.
 // On top of that, we want to live react to these properties changing.
@@ -37,7 +44,15 @@ export function modelToDeviceFormulaObject(
           displayName$: device.displayName$,
           logicValues$: device.logicValues$,
           data$: device.data$,
+
+          [ModelSymbol]: device,
         }) satisfies DeviceFormulaObject
     )
   );
+}
+
+export function deviceFormulaObjectToModel(
+  device: DeviceFormulaObject
+): DeviceModel {
+  return device[ModelSymbol];
 }
