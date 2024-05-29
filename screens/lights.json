@@ -1,0 +1,82 @@
+{
+  "title": "Lights demo",
+  "definitions": {
+    "light1": "device('foo')",
+    "light2": "device('bar')",
+    "light3": "device('baz')"
+  },
+  "root": {
+    "type": "stack",
+    "direction": "column",
+    "children": [
+      {
+        "type": "stack",
+        "direction": "row",
+        "gap": 3,
+        "children": [
+          {
+            "type": "text",
+            "text": "Foo"
+          },
+          {
+            "type": "button",
+            "text": "${readLogicValue(light1, 'On') ? 'Turn Off' : 'Turn On'}",
+            "fill": "readLogicValue(light1, 'On') == 1",
+            "action": {
+              "type": "writeLogicValue",
+              "device": "light1",
+              "logicValue": "On",
+              "value": "readLogicValue(light1, 'On') == 1 ? 0 : 1"
+            }
+          },
+          {
+            "type": "selector",
+            "label": "Color",
+            "items": [
+              {
+                "isSelected": "readLogicValue(light1, 'Color') == 6",
+                "label": "White",
+                "selectAction": {
+                  "type": "writeLogicValue",
+                  "device": "light1",
+                  "logicValue": "Color",
+                  "value": 6
+                }
+              },
+              {
+                "isSelected": "readLogicValue(light1, 'Color') == 2",
+                "label": "Green",
+                "selectAction": {
+                  "type": "writeLogicValue",
+                  "device": "light1",
+                  "logicValue": "Color",
+                  "value": 2
+                }
+              },
+              {
+                "isSelected": "readLogicValue(light1, 'Color') == 3",
+                "label": "Yellow",
+                "selectAction": {
+                  "type": "writeLogicValue",
+                  "device": "light1",
+                  "logicValue": "Color",
+                  "value": 3
+                }
+              },
+              {
+                "isSelected": "readLogicValue(light1, 'Color') == 4",
+                "label": "Red",
+                "selectAction": {
+                  "type": "writeLogicValue",
+                  "device": "light1",
+                  "logicValue": "Color",
+                  "value": 4
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
