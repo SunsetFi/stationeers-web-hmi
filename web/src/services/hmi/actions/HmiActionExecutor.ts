@@ -15,9 +15,9 @@ export class HmiActionExecutor {
   ) {}
 
   async executeAction(context: HmiScreenContext, action: HmiAction) {
-    const def = this._defs.find((d) => d.type === action.type);
+    const def = this._defs.find((d) => d.type === action.action);
     if (!def) {
-      throw new Error(`Unknown action type: ${action.type}`);
+      throw new Error(`Unknown action type: ${action.action}`);
     }
 
     await def.execute(context, action);

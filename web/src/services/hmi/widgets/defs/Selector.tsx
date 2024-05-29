@@ -34,7 +34,7 @@ export interface SelectorWidget extends WidgetBase {
 export interface SelectWidgetItem {
   isSelected: string;
   label: string;
-  selectAction: HmiAction | HmiAction[];
+  onSelect: HmiAction | HmiAction[];
 }
 
 export const SelectWidgetDef: WidgetDef<SelectorWidget> = {
@@ -43,6 +43,7 @@ export const SelectWidgetDef: WidgetDef<SelectorWidget> = {
 
     const sx: any = {
       alignSelf: "center",
+      minWidth: widget.width ?? 150,
       ...commonWidgetStyleToSx(widget),
     };
 
@@ -58,11 +59,11 @@ export const SelectWidgetDef: WidgetDef<SelectorWidget> = {
       async (e: SelectChangeEvent<HTMLInputElement>) => {
         const index = Number(e.target.value);
         const selectedItem = widget.items[index];
-        if (selectedItem && selectedItem.selectAction) {
+        if (selectedItem && selectedItem.onSelect) {
           setWorking(true);
-          const actions = Array.isArray(selectedItem.selectAction)
-            ? selectedItem.selectAction
-            : [selectedItem.selectAction];
+          const actions = Array.isArray(selectedItem.onSelect)
+            ? selectedItem.onSelect
+            : [selectedItem.onSelect];
           try {
             await Promise.all(
               actions.map((a) => executor.executeAction(context, a))
@@ -102,10 +103,9 @@ export const SelectWidgetDef: WidgetDef<SelectorWidget> = {
 
     const selectedValue = itemsSelected.findIndex((x) => x);
     return (
-      <FormControl>
+      <FormControl sx={sx}>
         <InputLabel>{label}</InputLabel>
         <Select
-          sx={sx}
           label={label}
           value={selectedValue as any}
           disabled={working}

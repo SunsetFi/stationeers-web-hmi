@@ -7,6 +7,7 @@ import {
   switchMap,
 } from "rxjs";
 import { startTransition } from "react";
+import { isEqual } from "lodash";
 
 import { StationeersApi } from "../StationeersApi";
 import {
@@ -18,7 +19,6 @@ import {
 
 import { DeviceModel } from "./DeviceModel";
 import { NullDeviceModel } from "./NullDeviceModel";
-import { isEqual } from "lodash";
 
 /**
  * A device model that always represents the first device returned by a query.
@@ -34,31 +34,41 @@ export class QueryingDeviceModel implements DeviceModel {
   private _onInitialResolve: (() => void) | null = null;
 
   private _currentQuery: DeviceQueryPayload | null = null;
-  private _scheduledResolve: number | null = null;
+  private _lastResolve: Promise<void> | null = null;
+  private _scheduledResolve: Promise<void> | null = null;
+  private _lastResolveTimestamp: number = 0;
 
   constructor(
     private readonly _query$: Observable<DeviceQueryPayload>,
     private readonly _api: StationeersApi,
     private readonly _resolveDataDeviceModel: (
       data: DeviceApiObject
-    ) => DeviceModel
+    ) => DeviceModel,
+    initialModel: DeviceModel = new NullDeviceModel()
   ) {
-    const nullModel: DeviceModel = new NullDeviceModel();
-    this._resolved$ = new BehaviorSubject(nullModel);
+    this._resolved$ = new BehaviorSubject(initialModel);
 
     this._initialResolve = new Promise((resolve) => {
       this._onInitialResolve = resolve;
     });
 
-    combineLatest([this.data$, this.exists$, this._query$]).subscribe(
-      ([data, exists, query]) => {
-        this._currentQuery = query;
-        if (!exists || !deviceMatchesQuery(data, query)) {
-          this._clear();
-          this._resolveDevice();
+    combineLatest([this.data$, this._query$]).subscribe(([data, query]) => {
+      this._currentQuery = query;
+      // Do not check for exists; it will be reflected in the bad data.
+      // We need to not check for that as it may lag behind data and show false negatives.
+      if (!deviceMatchesQuery(data, query)) {
+        this._clear();
+        this._scheduleResolve();
+      } else {
+        // We got data and it matches, so we are all happy.
+        // This is a bit of an edge case hack, as if our initial model matches the query
+        // we will not call scheduleResolve.
+        if (this._onInitialResolve) {
+          this._onInitialResolve();
+          this._onInitialResolve = null;
         }
       }
-    );
+    });
   }
 
   get _observed() {
@@ -145,25 +155,31 @@ export class QueryingDeviceModel implements DeviceModel {
   }
 
   private _scheduleResolve() {
-    // TODO: We should not do this or cancel this if nothing is subscribed to us.
-    // As it is, we will keep trying forever if we cannot find the device by name.
-
     if (this._scheduledResolve) {
-      clearTimeout(this._scheduledResolve);
+      return;
     }
 
-    this._scheduledResolve = setTimeout(() => {
-      this._scheduledResolve = null;
-      this._resolveDevice();
-    }, 1000);
+    // Wait on the current pending resolve before trying again, to avoid race conditions.
+    // Resolve at most once per second.
+    const timeSinceLastResolve = Date.now() - this._lastResolveTimestamp;
+    this._scheduledResolve = (this._lastResolve ?? Promise.resolve()).then(
+      () =>
+        new Promise((resolve) => {
+          setTimeout(
+            () => {
+              this._scheduledResolve = null;
+              this._lastResolve = this._resolveDevice().then(() => {
+                this._lastResolveTimestamp = Date.now();
+                resolve();
+              });
+            },
+            Math.max(1000 - timeSinceLastResolve, 0)
+          );
+        })
+    );
   }
 
   private async _resolveDevice() {
-    if (this._scheduledResolve) {
-      clearTimeout(this._scheduledResolve);
-      this._scheduledResolve = null;
-    }
-
     if (this._currentQuery == null) {
       this._clear();
       this._scheduleResolve();
@@ -182,19 +198,31 @@ export class QueryingDeviceModel implements DeviceModel {
       );
     }
 
-    if (!resolvedData) {
-      this._clear();
-      this._scheduleResolve();
-    } else {
-      startTransition(() => {
-        this._resolved$.next(this._resolveDataDeviceModel(resolvedData));
-      });
-    }
+    startTransition(() => {
+      if (!resolvedData) {
+        console.log("Could not find device", this._currentQuery);
+        this._clear();
+        this._scheduleResolve();
+      } else {
+        const model = this._resolveDataDeviceModel(resolvedData);
+        console.log("Setting resolved next to", model);
+        this._resolved$.next(model);
 
-    if (this._onInitialResolve) {
-      this._onInitialResolve();
-      this._onInitialResolve = null;
-    }
+        console.log(
+          "Resolved device",
+          resolvedData,
+          "to",
+          model,
+          ".  observable is",
+          this._resolved$.value
+        );
+
+        if (this._onInitialResolve) {
+          this._onInitialResolve();
+          this._onInitialResolve = null;
+        }
+      }
+    });
   }
 
   private _clear() {

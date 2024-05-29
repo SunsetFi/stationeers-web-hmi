@@ -1,7 +1,7 @@
 import { WriteLogicValueHmiAction } from "./defs/WriteLogicValueHmiActionDef";
 
 export interface HmiActionBase {
-  type: string;
+  action: string;
 }
 
 export type HmiAction = WriteLogicValueHmiAction;

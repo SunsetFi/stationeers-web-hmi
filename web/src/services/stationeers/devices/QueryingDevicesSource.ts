@@ -14,6 +14,7 @@ import { QueryingDeviceModel } from "./QueryingDeviceModel";
 
 import { DeviceModel } from "./DeviceModel";
 import { DevicesSource } from "./DevicesSource";
+import { NullDeviceModel } from "./NullDeviceModel";
 
 export class QueryingDevicesSource implements DevicesSource {
   private readonly _apiObjectDeviceModels = new Map<
@@ -53,14 +54,22 @@ export class QueryingDevicesSource implements DevicesSource {
         )
       );
 
-      model = new QueryingDeviceModel(referenceQuery$, this._api, (data) =>
-        this._getOrUpdateDeviceModel(data)
+      const initialModel =
+        this._apiObjectDeviceModels.get(referenceId) ?? new NullDeviceModel();
+
+      model = new QueryingDeviceModel(
+        referenceQuery$,
+        this._api,
+        (data) => this._getOrUpdateDeviceModel(data),
+        initialModel
       );
 
       this._referenceIdDeviceModels.set(referenceId, model);
     }
 
+    console.log("Awaiting initial resolve for", referenceId);
     await model._awaitInitialResolve();
+    console.log("Initial resolve complete for", referenceId, model);
 
     return model;
   }

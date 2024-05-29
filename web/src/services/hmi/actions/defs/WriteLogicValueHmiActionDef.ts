@@ -14,7 +14,7 @@ import { DeviceFormulaObject } from "@/services/stationeers/devices/DeviceFormul
 import { DeviceModel } from "@/services/stationeers/devices/DeviceModel";
 
 export interface WriteLogicValueHmiAction extends HmiActionBase {
-  type: "writeLogicValue";
+  action: "writeLogicValue";
   device: string;
   logicValue: string;
   value: string | number;
@@ -53,6 +53,8 @@ export class WriteLogicValueHmiActionDef
     const [resolvedDevice, resolvedLogicValue, resolvedValue] =
       await firstValueFrom(combineLatest([device$, logicValue$, value$]));
 
+    console.log("Resolved device to", resolvedDevice);
+
     // TODO: Check devices are the right species
     const resolvedDeviceArray: (DeviceModel | DeviceFormulaObject)[] =
       Array.isArray(resolvedDevice) ? resolvedDevice : [resolvedDevice];
@@ -67,10 +69,21 @@ export class WriteLogicValueHmiActionDef
       )
     );
 
+    console.log("Got device models", deviceModels);
+
     await Promise.all(
-      deviceModels.map((device) =>
-        device.writeLogicValue(resolvedLogicValue, resolvedValue)
-      )
+      deviceModels.map((device) => {
+        console.log(
+          "Writing logic value",
+          device,
+          resolvedLogicValue,
+          resolvedValue
+        );
+        if (!device.exists) {
+          debugger;
+        }
+        device.writeLogicValue(resolvedLogicValue, resolvedValue);
+      })
     );
   }
 }

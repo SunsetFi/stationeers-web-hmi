@@ -14,6 +14,9 @@ export interface CommonWidgetStyle {
   paddingBottom?: number;
   padding?: number;
 
+  width?: number;
+  height?: number;
+
   align?: "start" | "end" | "center" | "stretch" | "baseline";
   justifyChildren?: "start" | "end" | "center" | "stretch" | "baseline";
 }
@@ -49,6 +52,8 @@ export function commonWidgetStyleToSx(style: CommonWidgetStyle): SxProps {
     paddingTop,
     paddingBottom,
     padding,
+    width,
+    height,
     align,
     justifyChildren: justify,
   } = style;
@@ -65,6 +70,9 @@ export function commonWidgetStyleToSx(style: CommonWidgetStyle): SxProps {
     paddingTop,
     paddingBottom,
     padding,
+
+    width,
+    height,
 
     alignSelf: align ? alignSelfMap[align] : undefined,
     justifySelf: justify ? justifySelfMap[justify] : undefined,

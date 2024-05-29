@@ -22,7 +22,7 @@ export interface ButtonWidget extends WidgetBase {
   text: string;
   fontSize?: number;
   fill?: boolean | string;
-  action: HmiAction | HmiAction[];
+  onClick: HmiAction | HmiAction[];
 }
 
 export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
@@ -45,11 +45,11 @@ export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
     const executor = useDIDependency(HmiActionExecutor);
     const context = useHmiScreenContext();
     const onClick = React.useCallback(async () => {
-      if (widget.action) {
+      if (widget.onClick) {
         setWorking(true);
-        const actions = Array.isArray(widget.action)
-          ? widget.action
-          : [widget.action];
+        const actions = Array.isArray(widget.onClick)
+          ? widget.onClick
+          : [widget.onClick];
         try {
           await Promise.all(
             actions.map((a) => executor.executeAction(context, a))
@@ -58,7 +58,7 @@ export const ButtonWidgetDef: WidgetDef<ButtonWidget> = {
           setWorking(false);
         }
       }
-    }, [context, executor, widget.action]);
+    }, [context, executor, widget.onClick]);
 
     return (
       <Button
