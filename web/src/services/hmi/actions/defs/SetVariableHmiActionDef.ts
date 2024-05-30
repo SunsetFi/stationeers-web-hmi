@@ -6,6 +6,7 @@ import { FormulaCompiler } from "@/services/formula/FormulaCompiler";
 import { HmiScreenContext } from "../../screens/HmiScreenContext";
 
 import { HmiActionBase } from "../types";
+
 import { HmiActionDef } from "./HmiActionDef";
 
 export interface SetVariableHmiAction extends HmiActionBase {
@@ -16,6 +17,7 @@ export interface SetVariableHmiAction extends HmiActionBase {
 
 @injectable()
 @singleton()
+@provides(HmiActionDef)
 export class SetVariableHmiActionDef
   implements HmiActionDef<SetVariableHmiAction>
 {

@@ -1,0 +1,18 @@
+{
+  "title": "Multi Screen",
+  "root": {
+    "type": "stack",
+    "direction": "row",
+    "justifyChildren": "stretch",
+    "children": [
+      {
+        "type": "hmi-screen",
+        "screen": "lights"
+      },
+      {
+        "type": "hmi-screen",
+        "screen": "battery-status"
+      }
+    ]
+  }
+}

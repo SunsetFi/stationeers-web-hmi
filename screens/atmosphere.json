@@ -1,0 +1,55 @@
+{
+  "title": "Atmosphere",
+  "definitions": {
+    "gasSensor": "device('Gas Sensor')"
+  },
+  "root": {
+    "type": "stack",
+    "direction": "column",
+    "children": [
+      {
+        "type": "text",
+        "text": "Atmosphere",
+        "marginLeft": "auto",
+        "marginRight": "auto"
+      },
+      {
+        "type": "stack",
+        "direction": "row",
+        "justifyChildren": "center",
+        "children": [
+          {
+            "type": "icon",
+            "icon": "Thermostat"
+          },
+          {
+            "type": "text",
+            "text": "${round(readLogicValue(gasSensor, 'Temperature') kelvin to degF, 1, degF)}° F",
+            "marginRight": 4
+          },
+          {
+            "type": "icon",
+            "icon": "Compress"
+          },
+          {
+            "type": "text",
+            "text": "${round(readLogicValue(gasSensor, 'Pressure') KPa, 2, KPa)} kPa"
+          }
+        ]
+      },
+      {
+        "type": "line-chart",
+        "series": [
+          {
+            "valueFormula": "readLogicValue(gasSensor, 'Temperature') kelvin to degF",
+            "title": "Temperature"
+          },
+          {
+            "valueFormula": "readLogicValue(gasSensor, 'Pressure')",
+            "title": "Pressure"
+          }
+        ]
+      }
+    ]
+  }
+}

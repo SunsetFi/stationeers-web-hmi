@@ -1,0 +1,55 @@
+{
+  "title": "StationHMI",
+  "variables": {
+    "activeTab": "atmosphere"
+  },
+  "root": {
+    "type": "stack",
+    "direction": "column",
+    "gap": 2,
+    "children": [
+      {
+        "type": "stack",
+        "direction": "row",
+        "justifyChildren": "center",
+        "gap": 3,
+        "children": [
+          {
+            "type": "button",
+            "text": "Atmosphere",
+            "fill": "compareText(activeTab, 'atmosphere') == 0",
+            "onClick": {
+              "action": "setVariable",
+              "variable": "activeTab",
+              "value": "atmosphere"
+            }
+          },
+          {
+            "type": "button",
+            "text": "Power",
+            "fill": "compareText(activeTab, 'battery-status') == 0",
+            "onClick": {
+              "action": "setVariable",
+              "variable": "activeTab",
+              "value": "battery-status"
+            }
+          },
+          {
+            "type": "button",
+            "text": "Lighting",
+            "fill": "compareText(activeTab, 'lights') == 0",
+            "onClick": {
+              "action": "setVariable",
+              "variable": "activeTab",
+              "value": "lights"
+            }
+          }
+        ]
+      },
+      {
+        "type": "hmi-screen",
+        "screen": "${activeTab}"
+      }
+    ]
+  }
+}
