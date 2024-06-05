@@ -1,3 +1,4 @@
+// TODO: This massively baloons the bundle size.  We should lazy load this.
 import * as Icons from "@mui/icons-material";
 
 // We will eventually want search functionality, which the mui docs implement very well.
